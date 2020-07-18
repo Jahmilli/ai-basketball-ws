@@ -1,0 +1,94 @@
+= ai-basketball-ws
+
+Add Description of Application here
+
+:toc:
+
+== Getting Started
+
+.HTTP API
+[%header]
+|===
+|URI |HTTP Method |JSON Body |Required headers |Description
+|/v1/example
+|POST
+|<body goes here>
+|<headers go here>
+|<description of API>
+|===
+
+
+== Development
+
+This service relies on Minio and Postgres. It is not required for normal development, but to run in "Dev mode" or to run System Testing you will need to have Minio and Postgres running (see below on setup).
+
+=== Run Minio Locally
+
+```
+docker run -p 9000:9000 minio/minio server /data
+```
+
+To view a Minio Dashboard, go to: http://127.0.0.1:9000/
+. Username: minioadmin
+. Password: minioadmin
+
+=== Run Postgres Locally
+
+```
+docker run --name aibasketball-postgres -e POSTGRESQL_USER=testuser -e POSTGRESQL_PASSWORD=password -e POSTGRESQL_DATABASE=mydb -p 5432:5432 postgres
+docker exec aibasketball-postgres bash -c "psql -c 'alter user testuser superuser;'" # Determine if this is actually required...
+```
+
+=== Local development
+
+Install required packages: `npm install`
+
+Run Unit and Integration tests:
+```
+npm test
+```
+
+Build and run locally:
+```
+# Start in development mode:
+npm run start:dev
+```
+
+== Build & Deploy
+
+To build: `npm run build`
+
+To run: `npm start`
+
+Test Docker build locally:
+```
+npm install && npm run build
+docker build -t ai-basketball-ws .
+```
+
+== Running
+
+```
+npm start
+```
+
+== Conventions
+=== Directory structure
+ /
+ |- config/          # Config file per environment. For running in containerised environment, set NODE_ENV.
+ |- proto/           # Location for Protobuf files
+ |- src/classes/
+ |- src/enums/
+ |- src/interfaces/
+ |- src/routes/      # HTTP Routes used by Express
+ |- src/utils/       # Miscellaneous helper functions
+ |- test/            # For integration and system tests.
+ |- src/App.ts       # The application code, keep it clean and testable.
+ |- src/server.ts    # Code to run application as a stand-alone service.
+
+=== Filenames
+* Classes - <PascalCase>.ts
+* Interfaces - I<PascalCase>.ts (Do prefix with I)
+* Unit Tests - <PascalCase>.unit.test.ts
+* Integration Tests - <PascalCase>.int.test.ts, place in test/integration/
+* System Tests - <PascalCase>.st.test.ts, place in test/st/
