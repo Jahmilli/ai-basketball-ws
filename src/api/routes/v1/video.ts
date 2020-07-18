@@ -17,8 +17,9 @@ export default (app: Router) => {
   app.use("/v1/video", route);
   const s3Config: any = config.get("s3");
   const s3 = new S3Helper(s3Config);
-  const db = new Database();
+  const db = new Database("video-connection");
 
+  // TODO: Refactor this insanely large handler...
   route.post("/stream", async (req: Request, res: Response) => {
     logger.info(
       `Received multipart request with body ${util.inspect(req.body)}`
@@ -33,7 +34,7 @@ export default (app: Router) => {
     // Can probably move BusBoy into its own class...
     const busboy = new Busboy({ headers: req.headers });
     req.pipe(busboy);
-    const uploadUri = Upload.uploadFileToS3(s3.getS3(), managedUpload);
+    const uploadUriPromise = Upload.uploadFileToS3(s3.getS3(), managedUpload);
 
     busboy.on("file", function (fieldname, file) {
       file.on("data", function (data) {
@@ -45,22 +46,31 @@ export default (app: Router) => {
         logger.debug("Closed relevant streams");
       });
     });
-    // TODO: Determine what the response here should be
+
     busboy.on("finish", async () => {
       logger.debug("Done parsing form!");
-      let newResult = await uploadUri;
+      const uploadUri = await uploadUriPromise;
 
       const video = new Video();
-      video.name = "VideoName";
-      video.description = "This is a test description";
+      video.name = "Temporary video name";
+      video.description = "This is a temporary description";
       video.is_processed = false;
-      video.created_by = "Seb";
-      video.storage_uri = newResult;
-      video.feedback = "This is some feedback";
+      video.created_by = "Test User";
+      video.storage_uri = uploadUri;
+      video.feedback = "";
 
-      await db.writeVideoResult(video);
+      try {
+        await db.writeVideoResult(video);
+        // TODO: Determine what the response here should be
+        res.writeHead(201, { Connection: "close", Location: "/" });
+      } catch (err) {
+        logger.warn(
+          `An error occured when writing database result ${formatError(err)}`
+        );
+        // TODO: Determine what the response here should be
+        res.writeHead(500, { Connection: "close", Location: "/" });
+      }
 
-      res.writeHead(201, { Connection: "close", Location: "/" });
       res.end();
     });
   });

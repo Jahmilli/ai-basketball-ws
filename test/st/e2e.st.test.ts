@@ -6,8 +6,11 @@ jest.mock("config", () => {
 });
 
 import Server from "../../src/Server";
-import { S3 } from "aws-sdk";
-import { s3TestHelper, waitAsync } from "../utils/TestHelper";
+import {
+  s3TestHelper,
+  waitAsync,
+  DatabaseTestHelper,
+} from "../utils/TestHelper";
 import { getLogger, formatError } from "../../src/utils/Logging";
 import request from "supertest";
 import fastify from "fastify";
@@ -16,6 +19,7 @@ import fs from "fs";
 import * as path from "path";
 import S3Helper from "../../src/classes/S3Helper";
 import config from "config";
+import { Video } from "../../src/entity/Video";
 
 const logger = getLogger();
 const httpsServer = fastify();
@@ -63,22 +67,28 @@ describe("End-2-End test", () => {
   let server: Server;
   let address: string;
   let s3 = new S3Helper(config.get("s3"));
+  const dbTestHelper = new DatabaseTestHelper("test-connection");
 
   beforeAll(async () => {
     address = await httpsServer.listen(0);
-    await s3TestHelper.createS3Bucket(videosBucket, s3.getS3());
+    // await s3TestHelper.createS3Bucket(videosBucket, s3.getS3());
+    // console.log("Created bucket", videosBucket);
+    await dbTestHelper.start();
   });
 
   afterAll(async () => {
     await httpsServer.close();
-    await s3TestHelper.deleteS3Bucket(videosBucket, s3.getS3());
+    // await s3TestHelper.deleteS3Bucket(videosBucket, s3.getS3());
+    await dbTestHelper.stop();
   });
 
   beforeEach(async () => {
     jest.clearAllMocks();
     server = new Server();
+    // await dbTestHelper.deleteAllVideoRows();
     await server.start();
-  });
+    await waitAsync(2000);
+  }, 10000);
 
   afterEach(async () => {
     await server.stop();
@@ -87,35 +97,35 @@ describe("End-2-End test", () => {
 
   describe("Upload Video", () => {
     it("Should upload a video, save it to S3, save it to Postgres and send result to Pose Detection Server", async () => {
-      let result: any = await s3TestHelper.listObjects(
+      let s3Result: any = await s3TestHelper.listObjects(
         videosBucket,
         s3.getS3()
       );
-      expect(result.Contents.length).toEqual(0);
+      expect(s3Result.Contents.length).toEqual(0);
+      let dbResult = await dbTestHelper.getVideoRows();
+      console.log("db result is ", dbResult.length);
       await waitAsync(4000);
       const formData = new FormData();
-      try {
-        formData.append(
-          "myFile",
-          fs.createReadStream(
-            path.join(__dirname, "..", "fixtures", "test-video.MOV")
-          )
-        );
-      } catch (err) {
-        logger.warn(
-          `An error occurred when uploading test video ${formatError(err)}`
-        );
-      }
+      formData.append(
+        "myFile",
+        fs.createReadStream(
+          path.join(__dirname, "..", "fixtures", "test-video.MOV")
+        )
+      );
+
+      // TODO: Await on response from server here and assert on it...
       formData.submit(`${serverUrl}/api/v1/video/stream`, (err, res) => {
         if (err) {
           logger.warn("An error occurred when submitting test video", err);
         }
         res.resume();
       });
-      await waitAsync(2000);
+      await waitAsync(5000);
       expect(true);
-      result = await s3TestHelper.listObjects(videosBucket, s3.getS3());
-      expect(result.Contents.length).toEqual(1);
+      s3Result = await s3TestHelper.listObjects(videosBucket, s3.getS3());
+      expect(s3Result.Contents.length).toEqual(1);
+      // dbResult = await dbTestHelper.getVideoRows();
+      console.log("db result is ", dbResult.length);
     }, 15000);
   });
 });

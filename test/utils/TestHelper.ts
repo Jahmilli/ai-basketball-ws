@@ -1,7 +1,10 @@
-
+import { createConnection, getConnection } from "typeorm";
 import { promisify } from "util";
 import { S3 } from "aws-sdk";
+import { Video } from "../../src/entity/Video";
+import { getLogger, formatError } from "../../src/utils/Logging";
 
+const logger = getLogger();
 export const waitAsync = (timeout: any) => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -13,9 +16,9 @@ export const waitAsync = (timeout: any) => {
 export const getTestRequest = () => {
   // Figure out what request is...
   return {
-    message: "hi"
-  }
-}
+    message: "hi",
+  };
+};
 
 export namespace s3TestHelper {
   export const deleteS3Object = async (Bucket: string, Key: string, s3: S3) => {
@@ -40,8 +43,48 @@ export namespace s3TestHelper {
 
   export const clearBucket = async (Bucket: string, s3: S3) => {
     const objects = await listObjects(Bucket, s3);
-    await Promise.all(objects.Contents.map(async ({ Key }: any) => {
-      return await deleteS3Object(Bucket, Key, s3);
-    }));
+    await Promise.all(
+      objects.Contents.map(async ({ Key }: any) => {
+        return await deleteS3Object(Bucket, Key, s3);
+      })
+    );
+  };
+}
+
+export class DatabaseTestHelper {
+  constructor(readonly connectionName: string) {}
+
+  async start() {
+    await createConnection({
+      name: this.connectionName,
+      type: "postgres",
+      host: "localhost",
+      port: 5432,
+      username: "postgres",
+      password: "mysecretpassword",
+      database: "mydb",
+      entities: ["src/entity/**/*.ts"],
+      migrations: ["src/migration/**/*.ts"],
+      subscribers: ["src/subscriber/**/*.ts"],
+    });
+    logger.info(
+      `Started connection with connection name ${this.connectionName}`
+    );
+  }
+  async stop() {
+    await getConnection(this.connectionName).close();
+    logger.info(
+      `Closed test connection with connection name ${this.connectionName}`
+    );
+  }
+  // TODO: Parameterise functions so doesn't only work for Video
+  getVideoRows = async () => {
+    return getConnection(this.connectionName).manager.find(Video);
+  };
+
+  deleteAllVideoRows = async () => {
+    const connection = getConnection(this.connectionName);
+    const result = connection.manager.find(Video);
+    await connection.manager.remove(result);
   };
 }
