@@ -9,16 +9,6 @@ export default class S3Helper {
   private readonly logger = getLogger();
 
   constructor(s3Config: any) {
-    // const s3Conf: any = config.get("s3");
-    // const s3Conf: any = {
-    //   videosBucket: "test-bucket",
-    //   accessKeyId: "minioadmin",
-    //   secretAccessKey: "minioadmin",
-    //   endpoint: "127.0.0.1:9000",
-    //   sslEnabled: false,
-    //   s3ForcePathStyle: true,
-    // };
-    // console.log("s3 config is ", s3Conf);
     AWS.config.update(s3Config);
     this.s3 = new AWS.S3();
   }

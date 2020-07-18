@@ -12,6 +12,7 @@ namespace Upload {
   export const uploadFileToS3 = (s3: S3, managedUpload: any) => {
     managedUpload.promise().then(async (data: any) => {
       const uri = `s3://${data.Bucket}/${data.Key}`;
+      logger.info(`URI of uploaded video is ${uri}`);
       try {
         const headResult = await s3.headObject(data.Bucket, data.Key);
         logger.info(`HeadResult is ${util.inspect(headResult)}`);
