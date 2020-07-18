@@ -85,7 +85,7 @@ describe("End-2-End test", () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     server = new Server();
-    // await dbTestHelper.deleteAllVideoRows();
+    await dbTestHelper.deleteAllVideoRows();
     await server.start();
     await waitAsync(2000);
   }, 10000);
@@ -103,7 +103,7 @@ describe("End-2-End test", () => {
       );
       expect(s3Result.Contents.length).toEqual(0);
       let dbResult = await dbTestHelper.getVideoRows();
-      console.log("db result is ", dbResult.length);
+      expect(dbResult.length).toEqual(0);
       await waitAsync(4000);
       const formData = new FormData();
       formData.append(
@@ -113,19 +113,24 @@ describe("End-2-End test", () => {
         )
       );
 
-      // TODO: Await on response from server here and assert on it...
-      formData.submit(`${serverUrl}/api/v1/video/stream`, (err, res) => {
-        if (err) {
-          logger.warn("An error occurred when submitting test video", err);
-        }
-        res.resume();
+      await new Promise((resolve, reject) => {
+        // TODO: Await on response from server here and assert on it...
+        formData.submit(`${serverUrl}/api/v1/video/stream`, (err, res) => {
+          if (err) {
+            logger.warn(
+              `An error occurred when submitting test video ${formatError(err)}`
+            );
+            reject("An error occurred when submitting test video");
+          }
+          res.resume();
+          resolve();
+        });
       });
-      await waitAsync(5000);
       expect(true);
       s3Result = await s3TestHelper.listObjects(videosBucket, s3.getS3());
       expect(s3Result.Contents.length).toEqual(1);
-      // dbResult = await dbTestHelper.getVideoRows();
-      console.log("db result is ", dbResult.length);
+      dbResult = await dbTestHelper.getVideoRows();
+      expect(dbResult.length).toEqual(1);
     }, 15000);
   });
 });

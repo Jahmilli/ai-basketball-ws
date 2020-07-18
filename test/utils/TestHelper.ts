@@ -83,8 +83,10 @@ export class DatabaseTestHelper {
   };
 
   deleteAllVideoRows = async () => {
-    const connection = getConnection(this.connectionName);
-    const result = connection.manager.find(Video);
-    await connection.manager.remove(result);
+    await getConnection(this.connectionName)
+      .createQueryBuilder()
+      .delete()
+      .from(Video)
+      .execute();
   };
 }
