@@ -77,10 +77,11 @@ describe("End-2-End test", () => {
     let result: any = await s3TestHelper.listObjects(videosBucket, s3);
     expect(result.Contents.length).toEqual(0);
 
+    const formData = new FormData();
     // TODO: Figure out how we upload the video!!!!
     await request(serverUrl)
       .post("/v1/video/upload")
-      .set("Content-Type", "application/json")
+      // .set("Content-Type", "application/json") // Will need to determine content-type
       .send({ message: "hello" })
       .expect(200, {
         message: "Uploaded..."
