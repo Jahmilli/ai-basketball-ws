@@ -35,8 +35,7 @@ To view a Minio Dashboard, go to: http://127.0.0.1:9000/
 === Run Postgres Locally
 
 ```
-docker run --name aibasketball-postgres -e POSTGRESQL_USER=testuser -e POSTGRESQL_PASSWORD=password -e POSTGRESQL_DATABASE=mydb -p 5432:5432 postgres
-docker exec aibasketball-postgres bash -c "psql -c 'alter user testuser superuser;'" # Determine if this is actually required...
+docker run --rm -itd --name aibasketball-postgres -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_DB=mydb -p 5432:5432 postgres
 ```
 
 === Local development

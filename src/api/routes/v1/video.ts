@@ -4,11 +4,11 @@ import { formatError, getLogger } from "../../../utils/Logging";
 import validationMiddleware from "../../middlewares/validation";
 import uploadVideoSchema from "../../schemas/uploadVideoSchema";
 import Busboy from "busboy";
-import fs from "fs";
 import Upload from "../../../classes/Upload";
-import * as stream from "stream";
 import S3Helper from "../../../classes/S3Helper";
 import config from "config";
+import { Video } from "../../../entity/Video";
+import Database from "../../../classes/Database";
 
 const route = Router();
 const logger = getLogger();
@@ -17,6 +17,7 @@ export default (app: Router) => {
   app.use("/v1/video", route);
   const s3Config: any = config.get("s3");
   const s3 = new S3Helper(s3Config);
+  const db = new Database();
 
   route.post("/stream", async (req: Request, res: Response) => {
     logger.info(
@@ -28,11 +29,12 @@ export default (app: Router) => {
       s3Config.videosBucket,
       key
     );
-    // const newStream = new stream.Readable();
 
-    Upload.uploadFileToS3(s3.getS3(), managedUpload);
-
+    // Can probably move BusBoy into its own class...
     const busboy = new Busboy({ headers: req.headers });
+    req.pipe(busboy);
+    const uploadUri = Upload.uploadFileToS3(s3.getS3(), managedUpload);
+
     busboy.on("file", function (fieldname, file) {
       file.on("data", function (data) {
         writeStream.write(data);
@@ -43,11 +45,23 @@ export default (app: Router) => {
         logger.debug("Closed relevant streams");
       });
     });
-    busboy.on("finish", function () {
+    // TODO: Determine what the response here should be
+    busboy.on("finish", async () => {
       logger.debug("Done parsing form!");
-      res.writeHead(303, { Connection: "close", Location: "/" });
+      let newResult = await uploadUri;
+
+      const video = new Video();
+      video.name = "VideoName";
+      video.description = "This is a test description";
+      video.is_processed = false;
+      video.created_by = "Seb";
+      video.storage_uri = newResult;
+      video.feedback = "This is some feedback";
+
+      await db.writeVideoResult(video);
+
+      res.writeHead(201, { Connection: "close", Location: "/" });
       res.end();
     });
-    req.pipe(busboy);
   });
 };
