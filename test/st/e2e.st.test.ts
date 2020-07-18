@@ -59,7 +59,6 @@ describe("End-2-End test", () => {
     });
     server = new Server();
     await server.start();
-    await waitAsync(4000); // Wait for Kafka groups to balance
   });
 
   afterEach(async () => {

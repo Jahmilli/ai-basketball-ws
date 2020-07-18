@@ -6,14 +6,12 @@ import HttpServer from "./classes/HttpServer";
 export default class App {
   readonly logger = getLogger();
   readonly server: HttpServer;
-  readonly kafkaConfig: any;
   private ex: Express;
 
   /**
    * Only add static code to constructor to make unit testing possible.
    */
   constructor() {
-
     this.ex = setupExpress();
     this.server = new HttpServer(this.ex);
   }
