@@ -7,9 +7,9 @@ jest.mock("config", () => {
 });
 
 import Server from "../../src/Server";
+import { S3 } from "aws-sdk";
 import {
-  TestData,
-  decode,
+  s3TestHelper,
   waitAsync
 } from "../utils/TestHelper";
 import { getLogger } from "../../src/utils/Logging";
@@ -34,17 +34,24 @@ httpsServer.post("/routine/create", {}, async (request: any, reply: any) => {
   )).send();
 });
 
+const videosBucket = "ai.basketball.videos";
+
 describe("End-2-End test", () => {
   const serverUrl = "http://localhost:4993";
   let server: Server;
   let uid: number;
   let address: string;
+  let s3 = new S3();
 
   beforeAll(async () => {
     address = await httpsServer.listen(0);
+    await s3TestHelper.createS3Bucket(videosBucket, s3);
   });
+
   afterAll(async () => {
     await httpsServer.close();
+    await s3TestHelper.deleteS3Bucket(videosBucket, s3);
+
   });
 
   beforeEach(async () => {
@@ -63,10 +70,23 @@ describe("End-2-End test", () => {
 
   afterEach(async () => {
     await server.stop();
+    await s3TestHelper.clearBucket(videosBucket, s3);
   }, 40000);
 
-  describe("Upload Video", () => {
-    expect(true);
-    // TODO: Add test here...
+  describe("Upload Video", async () => {
+    let result: any = await s3TestHelper.listObjects(videosBucket, s3);
+    expect(result.Contents.length).toEqual(0);
+
+    // TODO: Figure out how we upload the video!!!!
+    await request(serverUrl)
+      .post("/v1/video/upload")
+      .set("Content-Type", "application/json")
+      .send({ message: "hello" })
+      .expect(200, {
+        message: "Uploaded..."
+      });
+
+    result = await s3TestHelper.listObjects(videosBucket, s3);
+    expect(result.Contents.length).toEqual(1);
   });
 });
