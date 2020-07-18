@@ -1,6 +1,6 @@
-import { createConnection, Connection, getConnection } from "typeorm";
+import { createConnection, getConnection } from "typeorm";
 import { Video } from "../entity/Video";
-import { getLogger, formatError } from "../utils/Logging";
+import { getLogger } from "../utils/Logging";
 import * as util from "util";
 
 export default class Database {

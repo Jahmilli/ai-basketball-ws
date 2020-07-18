@@ -1,5 +1,4 @@
 import AWS from "aws-sdk";
-import config from "config";
 import stream from "stream";
 import util from "util";
 import { formatError, getLogger } from "../utils/Logging";

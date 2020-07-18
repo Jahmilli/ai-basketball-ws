@@ -63,20 +63,18 @@ const videosBucket = "test-bucket";
 describe("End-2-End test", () => {
   const serverUrl = "http://localhost:4993";
   let server: Server;
-  let address: string;
   let s3 = new S3Helper(config.get("s3"));
   const dbTestHelper = new DatabaseTestHelper("test-connection");
 
   beforeAll(async () => {
-    address = await httpsServer.listen(0);
-    // await s3TestHelper.createS3Bucket(videosBucket, s3.getS3());
-    // console.log("Created bucket", videosBucket);
+    await httpsServer.listen(0);
+    await s3TestHelper.createS3Bucket(videosBucket, s3.getS3());
     await dbTestHelper.start();
   });
 
   afterAll(async () => {
     await httpsServer.close();
-    // await s3TestHelper.deleteS3Bucket(videosBucket, s3.getS3());
+    await s3TestHelper.deleteS3Bucket(videosBucket, s3.getS3());
     await dbTestHelper.stop();
   });
 

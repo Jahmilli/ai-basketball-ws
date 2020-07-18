@@ -1,6 +1,6 @@
 import { getLogger } from "./utils/Logging";
 import { Express } from "express";
-import { setupExpress } from "./classes/express";
+import { setupExpress } from "./classes/Express";
 import HttpServer from "./classes/HttpServer";
 import Database from "./classes/Database";
 

@@ -2,7 +2,7 @@ import { createConnection, getConnection } from "typeorm";
 import { promisify } from "util";
 import { S3 } from "aws-sdk";
 import { Video } from "../../src/entity/Video";
-import { getLogger, formatError } from "../../src/utils/Logging";
+import { getLogger } from "../../src/utils/Logging";
 
 const logger = getLogger();
 export const waitAsync = (timeout: any) => {
