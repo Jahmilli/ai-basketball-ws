@@ -12,14 +12,12 @@ import {
   DatabaseTestHelper,
 } from "../utils/TestHelper";
 import { getLogger, formatError } from "../../src/utils/Logging";
-import request from "supertest";
 import fastify from "fastify";
 import FormData from "form-data";
 import fs from "fs";
 import * as path from "path";
 import S3Helper from "../../src/classes/S3Helper";
 import config from "config";
-import { Video } from "../../src/entity/Video";
 
 const logger = getLogger();
 const httpsServer = fastify();
@@ -130,6 +128,7 @@ describe("End-2-End test", () => {
       s3Result = await s3TestHelper.listObjects(videosBucket, s3.getS3());
       expect(s3Result.Contents.length).toEqual(1);
       dbResult = await dbTestHelper.getVideoRows();
+      // TODO: Assert row values are correct...
       expect(dbResult.length).toEqual(1);
     }, 15000);
   });

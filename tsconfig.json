@@ -10,7 +10,7 @@
     "outDir": "dist",
     "baseUrl": ".",
     "traceResolution": false,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "paths": {

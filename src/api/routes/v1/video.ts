@@ -1,8 +1,6 @@
 import { Router, Request, Response } from "express";
 import util from "util";
 import { formatError, getLogger } from "../../../utils/Logging";
-import validationMiddleware from "../../middlewares/validation";
-import uploadVideoSchema from "../../schemas/uploadVideoSchema";
 import Busboy from "busboy";
 import Upload from "../../../classes/Upload";
 import S3Helper from "../../../classes/S3Helper";
@@ -61,6 +59,8 @@ export default (app: Router) => {
 
       try {
         await db.writeVideoResult(video);
+        // TODO: Now we send a request to the pose recognition server...
+
         // TODO: Determine what the response here should be
         res.writeHead(201, { Connection: "close", Location: "/" });
       } catch (err) {
