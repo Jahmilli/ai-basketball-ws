@@ -35,4 +35,20 @@ export default class Database {
     this.logger.info(`Video has been saved. Video is ${util.inspect(video)}`);
     return result;
   }
+
+  async updateVideoResult(id: string, storageUri: string) {
+    this.logger.info(
+      `Updating Video with id ${id} with new storage URI ${storageUri}`
+    );
+    const connectionManager = getConnection(this.connectionName).manager;
+    const video = await connectionManager.findOne(Video, id);
+    if (!video) {
+      // TODO: Refactor errors...
+      throw new Error("Video not found in database");
+    }
+    video.storage_uri = storageUri;
+    await connectionManager.save(video);
+    this.logger.info(`Video has been updated. Video is ${util.inspect(video)}`);
+    return video;
+  }
 }

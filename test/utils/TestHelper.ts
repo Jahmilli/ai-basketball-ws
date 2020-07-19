@@ -21,7 +21,22 @@ export const getTestRequest = () => {
     description: "This is a temporary description",
     angleOfShot: "side-on",
     typeOfShot: "free-throw",
-    uploadedTimestamp: "2020-07-19T02:45:32.722Z",
+    uploadedTimestamp: new Date("2020-07-19T02:45:32.722Z"),
+  };
+};
+
+export const getExpectedDbResult = () => {
+  return {
+    user_id: "12345",
+    name: "Temporary video name",
+    description: "This is a temporary description",
+    is_processed: false,
+    angle_of_shot: "side-on",
+    type_of_shot: "free-throw",
+    storage_uri: "",
+    feedback: "",
+    uploaded_timestamp: "2020-07-19T02:45:32.722Z",
+    id: expect.any(String),
   };
 };
 

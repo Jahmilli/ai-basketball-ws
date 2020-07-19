@@ -11,6 +11,7 @@ import {
   waitAsync,
   DatabaseTestHelper,
   getTestRequest,
+  getExpectedDbResult,
 } from "../utils/TestHelper";
 import { getLogger } from "../../src/utils/Logging";
 import fastify from "fastify";
@@ -26,7 +27,7 @@ const httpsServer = fastify();
 const mockPoseService = jest.fn();
 const poseServicePath = "/pose/create";
 const videosBucket = "test-bucket";
-let poseServiceReceived = {};
+let poseServiceReceived: any = {};
 
 httpsServer.post(poseServicePath, {}, async (request: any, reply: any) => {
   logger.debug(
@@ -135,7 +136,6 @@ describe("End-2-End test", () => {
     });
 
     it("Should upload a video, save it to S3, save it to Postgres and send result to Pose Service", async () => {
-      // Arrange
       mockPoseService.mockReturnValueOnce(200);
       let s3Result: any = await s3TestHelper.listObjects(
         videosBucket,
@@ -145,24 +145,35 @@ describe("End-2-End test", () => {
       let dbResult = await dbTestHelper.getVideoRows();
       expect(dbResult.length).toEqual(0);
 
-      // const requestBody = getTestRequest();
-      // Act
+      let resultId = "";
+      await request(`${serverUrl}`)
+        .post("/api/v1/video/create")
+        .send(getTestRequest())
+        .then((res) => {
+          resultId = res.body.id;
+          expect(res.status).toEqual(201);
+          expect(res.body).toMatchObject(getExpectedDbResult());
+        });
+
       await request(`${serverUrl}`)
         .post("/api/v1/video/stream")
         .attach(
-          "myFile",
+          `${resultId}.MOV`,
           path.join(__dirname, "..", "fixtures", "test-video.MOV")
         )
         .expect(201);
 
-      // Assert
       s3Result = await s3TestHelper.listObjects(videosBucket, s3.getS3());
       expect(s3Result.Contents.length).toEqual(1);
       dbResult = await dbTestHelper.getVideoRows();
-      // TODO: Assert row values are correct...
+
+      const expectedUri = /^s3\:\/\/test-bucket\/\w*-.*\w*$/;
+      expect(poseServiceReceived.videoUri).toMatch(expectedUri);
       expect(dbResult.length).toEqual(1);
-      expect(poseServiceReceived).toEqual({
-        videoUri: "s3://test-bucket/basketball.MOV",
+      expect(dbResult[0]).toMatchObject({
+        ...getExpectedDbResult(),
+        storage_uri: expectedUri,
+        uploaded_timestamp: new Date("2020-07-19T02:45:32.722Z"),
       });
     }, 15000);
   });

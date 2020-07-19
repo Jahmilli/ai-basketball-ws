@@ -32,10 +32,10 @@ export default (app: Router) => {
     video.type_of_shot = req.body.typeOfShot;
     video.storage_uri = "";
     video.feedback = "";
-    video.uploaded_timestamp = req.body.uploadedTimestamp;
+    video.uploaded_timestamp = new Date(req.body.uploadedTimestamp);
     try {
       const result = await db.writeVideoResult(video);
-      console.log("result is ", result);
+      // TODO: Might want to do snakecase to camelcase conversion here
       res.status(201).json(result);
     } catch (err) {
       logger.warn(
@@ -53,18 +53,19 @@ export default (app: Router) => {
       `Received multipart request with body ${util.inspect(req.body)}`
     );
 
-    const key = `basketball.MOV`; // TODO: Figure out how we generate this...
-    const { writeStream, managedUpload } = s3.upload(
-      s3Config.videosBucket,
-      key
-    );
-
     // Can probably move BusBoy into its own class...
     const busboy = new Busboy({ headers: req.headers });
     req.pipe(busboy);
-    const uploadUriPromise = Upload.uploadFileToS3(s3.getS3(), managedUpload);
 
+    let uploadUriPromise: Promise<any>;
+    let key = "";
     busboy.on("file", function (fieldname, file) {
+      key = fieldname.substring(0, fieldname.indexOf("."));
+      const { writeStream, managedUpload } = s3.upload(
+        s3Config.videosBucket,
+        key
+      );
+      uploadUriPromise = Upload.uploadFileToS3(s3.getS3(), managedUpload);
       file.on("data", function (data) {
         writeStream.write(data);
       });
@@ -79,10 +80,11 @@ export default (app: Router) => {
       logger.debug("Done parsing form!");
       const uploadUri = await uploadUriPromise;
 
-      const video = new Video();
-
       try {
-        await db.writeVideoResult(video);
+        if (!key) {
+          throw new Error("Missing key");
+        }
+        await db.updateVideoResult(key, uploadUri);
         // TODO: Now we send a request to the pose service...
         await poseService.sendRequest(uploadUri);
         // TODO: Determine what the response here should be
