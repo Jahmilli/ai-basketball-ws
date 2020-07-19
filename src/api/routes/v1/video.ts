@@ -10,13 +10,14 @@ import Database from "../../../modules/Database";
 import PoseService from "../../../modules/PoseService";
 import validationMiddleware from "../../middlewares/validation";
 import uploadVideoSchema from "../../schemas/uploadVideoSchema";
+import { IS3Config } from "IConfig";
 
 const route = Router();
 const logger = getLogger();
 
 export default (app: Router): void => {
   app.use("/v1/video", route);
-  const s3Config: any = config.get("s3");
+  const s3Config: IS3Config = config.get("s3");
   const s3 = new S3Helper(s3Config);
   const db = new Database("video-connection");
   const poseService = new PoseService(config.get("poseService"));
@@ -36,6 +37,7 @@ export default (app: Router): void => {
     video.storage_uri = "";
     video.feedback = "";
     video.uploaded_timestamp = new Date(req.body.uploadedTimestamp);
+
     try {
       const result = await db.writeVideoResult(video);
       // TODO: Might want to do snakecase to camelcase conversion here

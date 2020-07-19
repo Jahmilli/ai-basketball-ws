@@ -1,9 +1,10 @@
 import { getLogger, formatError } from "../utils/Logging";
 import got from "got";
+import { IPoseServiceConfig } from "IConfig";
 
 export default class PoseService {
   private logger = getLogger();
-  constructor(readonly poseServiceConfig: any) {}
+  constructor(readonly poseServiceConfig: IPoseServiceConfig) {}
 
   async sendRequest(videoUri: string): Promise<void> {
     this.logger.info(`Sending video uri ${videoUri}`);

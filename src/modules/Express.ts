@@ -5,8 +5,6 @@ import cors from "cors";
 import config from "config";
 import { getLogger } from "../utils/Logging";
 
-const logger = getLogger();
-
 export const setupExpress = (): Express => {
   const router = Router();
   // Setup Routes
@@ -16,8 +14,8 @@ export const setupExpress = (): Express => {
     .use(cors())
     .use(express.urlencoded({ extended: true }))
     .use(bodyParser.json())
-    .use(config.get("api.prefix"), router);
+    .use(config.get("api.prefix") as string, router);
 
-  logger.info("Setup Express");
+  getLogger().info("Setup Express");
   return app;
 };

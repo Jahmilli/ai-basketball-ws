@@ -13,6 +13,7 @@ import * as path from "path";
 import S3Helper from "../../src/modules/S3Helper";
 import config from "config";
 import request from "supertest";
+import { IS3Config, IPoseServiceConfig } from "../../src/interfaces/IConfig";
 
 const logger = getLogger();
 const httpsServer = fastify();
@@ -22,7 +23,7 @@ const poseServicePath = "/pose/create";
 const videosBucket = "test-bucket";
 let poseServiceReceived: any = {};
 
-httpsServer.post(poseServicePath, {}, async (request: any, reply: any) => {
+httpsServer.post(poseServicePath, {}, async (request, reply) => {
   logger.debug(`Received request in test server with body ${JSON.stringify(request.body)}`);
   poseServiceReceived = request.body; // Used to perform assertions on what was received
   await waitAsync(100);
@@ -38,7 +39,7 @@ httpsServer.post(poseServicePath, {}, async (request: any, reply: any) => {
 describe("End-2-End test", () => {
   const serverUrl = "http://localhost:4993";
   let server: Server;
-  let s3: S3Helper;
+  let s3Helper: S3Helper;
   const dbTestHelper = new DatabaseTestHelper("test-connection");
   let address: string;
   const s3TestHelper = new S3TestHelper();
@@ -56,13 +57,13 @@ describe("End-2-End test", () => {
             endpoint: "127.0.0.1:9000",
             sslEnabled: false,
             s3ForcePathStyle: true,
-          };
+          } as IS3Config;
         }
         case "poseService": {
           return {
             endpoint: address,
             path: poseServicePath,
-          };
+          } as IPoseServiceConfig;
         }
         default:
           // Return actual value for all but above
@@ -70,15 +71,15 @@ describe("End-2-End test", () => {
       }
     });
 
-    s3 = new S3Helper(config.get("s3"));
-    await s3TestHelper.createS3Bucket(videosBucket, s3.getS3());
+    s3Helper = new S3Helper(config.get("s3"));
+    await s3TestHelper.createS3Bucket(videosBucket, s3Helper.s3);
     await dbTestHelper.start();
   });
 
   afterAll(async () => {
     await httpsServer.close();
     await dbTestHelper.stop();
-    await s3TestHelper.deleteS3Bucket(videosBucket, s3.getS3());
+    await s3TestHelper.deleteS3Bucket(videosBucket, s3Helper.s3);
   });
 
   beforeEach(async () => {
@@ -93,7 +94,7 @@ describe("End-2-End test", () => {
 
   afterEach(async () => {
     await server.stop();
-    await s3TestHelper.clearBucket(videosBucket, s3.getS3());
+    await s3TestHelper.clearBucket(videosBucket, s3Helper.s3);
   });
 
   describe("Upload Video", () => {
@@ -133,7 +134,7 @@ describe("End-2-End test", () => {
 
     it("Should upload a video, save it to S3, save it to Postgres and send result to Pose Service", async () => {
       mockPoseService.mockReturnValueOnce(200);
-      let s3Result: any = await s3TestHelper.listObjects(videosBucket, s3.getS3());
+      let s3Result = await s3TestHelper.listObjects(videosBucket, s3Helper.s3);
       expect(s3Result.Contents.length).toEqual(0);
       let dbResult = await dbTestHelper.getVideoRows();
       expect(dbResult.length).toEqual(0);
@@ -153,7 +154,7 @@ describe("End-2-End test", () => {
         .attach(`${resultId}.MOV`, path.join(__dirname, "..", "fixtures", "test-video.MOV"))
         .expect(201);
 
-      s3Result = await s3TestHelper.listObjects(videosBucket, s3.getS3());
+      s3Result = await s3TestHelper.listObjects(videosBucket, s3Helper.s3);
       expect(s3Result.Contents.length).toEqual(1);
       dbResult = await dbTestHelper.getVideoRows();
 

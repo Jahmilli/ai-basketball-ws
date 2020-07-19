@@ -14,8 +14,8 @@ describe("Logging", () => {
     });
   });
   describe("getLogger", () => {
-    let nodeEnv: string;
-    let logLevel: string;
+    let nodeEnv: string | undefined;
+    let logLevel: string | undefined;
 
     beforeEach(() => {
       nodeEnv = process.env.NODE_ENV;

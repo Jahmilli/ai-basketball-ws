@@ -1,13 +1,11 @@
 import AWS from "aws-sdk";
 import stream from "stream";
-import util from "util";
-import { formatError, getLogger } from "../utils/Logging";
+import { IS3Config } from "IConfig";
 
 export default class S3Helper {
-  private s3: AWS.S3;
-  private readonly logger = getLogger();
+  public readonly s3: AWS.S3;
 
-  constructor(s3Config: any) {
+  constructor(s3Config: IS3Config) {
     AWS.config.update(s3Config);
     this.s3 = new AWS.S3();
   }
@@ -23,21 +21,5 @@ export default class S3Helper {
       writeStream: pass,
       managedUpload: this.s3.upload({ Bucket, Key, Body: pass }),
     };
-  }
-
-  async deleteObject(Bucket: string, Key: string): Promise<void> {
-    try {
-      const del: any = util.promisify(this.s3.deleteObject.bind(this.s3));
-      await del({ Bucket, Key });
-      this.logger.debug(`Successfully deleted object with key ${Key} from bucket ${Bucket}`);
-    } catch (err) {
-      this.logger.warn(
-        `An error occurred when deleting recording with key ${Key} from bucket ${Bucket}: ${formatError(err)}`,
-      );
-    }
-  }
-
-  getS3(): AWS.S3 {
-    return this.s3;
   }
 }
