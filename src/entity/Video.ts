@@ -1,9 +1,12 @@
 import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
+@Entity("videos")
 export class Video {
   @PrimaryGeneratedColumn("uuid")
-  video_id!: string;
+  id!: string;
+
+  @Column("text")
+  user_id!: string; // References id from Users table
 
   @Column("text")
   name!: string;
@@ -15,7 +18,10 @@ export class Video {
   is_processed!: boolean;
 
   @Column("text")
-  created_by!: string;
+  angle_of_shot!: string;
+
+  @Column("text")
+  type_of_shot!: string;
 
   @Column("text")
   storage_uri!: string;
@@ -23,6 +29,6 @@ export class Video {
   @Column("text")
   feedback!: string;
 
-  // @Column("timestamp")
-  // created_timestamp: any;
+  @Column("timestamptz")
+  created_timestamp: any;
 }

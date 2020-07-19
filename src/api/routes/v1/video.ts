@@ -52,12 +52,15 @@ export default (app: Router) => {
       const uploadUri = await uploadUriPromise;
 
       const video = new Video();
+      video.user_id = "Test User";
       video.name = "Temporary video name";
       video.description = "This is a temporary description";
       video.is_processed = false;
-      video.created_by = "Test User";
+      video.angle_of_shot = "side-on";
+      video.type_of_shot = "free-throw";
       video.storage_uri = uploadUri;
       video.feedback = "";
+      video.created_timestamp = new Date();
 
       try {
         await db.writeVideoResult(video);

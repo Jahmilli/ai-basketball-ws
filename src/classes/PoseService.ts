@@ -11,7 +11,9 @@ export default class PoseService {
     try {
       const result = await got(`${endpoint}${path}`, {
         method: "POST",
-        rejectUnauthorized: false,
+        https: {
+          rejectUnauthorized: false,
+        },
         retry: 0, // Must be set to 0 or got() will retry after requestTimeout
         timeout: timeout,
         json: {
