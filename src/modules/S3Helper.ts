@@ -17,10 +17,7 @@ export default class S3Helper {
    * @param { type } string bucket name
    * @param { type } string key name
    */
-  upload(
-    Bucket: string,
-    Key: string
-  ): { writeStream: stream.PassThrough; managedUpload: AWS.S3.ManagedUpload } {
+  upload(Bucket: string, Key: string): { writeStream: stream.PassThrough; managedUpload: AWS.S3.ManagedUpload } {
     const pass = new stream.PassThrough();
     return {
       writeStream: pass,
@@ -28,40 +25,19 @@ export default class S3Helper {
     };
   }
 
-  async deleteObject(Bucket: string, Key: string) {
+  async deleteObject(Bucket: string, Key: string): Promise<void> {
     try {
       const del: any = util.promisify(this.s3.deleteObject.bind(this.s3));
       await del({ Bucket, Key });
-      this.logger.debug(
-        `Successfully deleted object with key ${Key} from bucket ${Bucket}`
-      );
+      this.logger.debug(`Successfully deleted object with key ${Key} from bucket ${Bucket}`);
     } catch (err) {
       this.logger.warn(
-        `An error occurred when deleting recording with key ${Key} from bucket ${Bucket}: ${formatError(
-          err
-        )}`
+        `An error occurred when deleting recording with key ${Key} from bucket ${Bucket}: ${formatError(err)}`,
       );
     }
   }
 
-  async headObject(Bucket: string, Key: string) {
-    try {
-      const head: any = util.promisify(this.s3.headObject.bind(this.s3));
-      const result = await head({
-        Bucket,
-        Key,
-      });
-      return result;
-    } catch (err) {
-      this.logger.warn(
-        `An error occurred when getting head object with key ${Key} from bucket ${Bucket}: ${formatError(
-          err
-        )}`
-      );
-      throw err;
-    }
-  }
-  getS3() {
+  getS3(): AWS.S3 {
     return this.s3;
   }
 }

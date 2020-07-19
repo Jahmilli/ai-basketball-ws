@@ -5,7 +5,7 @@ export default class PoseService {
   private logger = getLogger();
   constructor(readonly poseServiceConfig: any) {}
 
-  async sendRequest(videoUri: string) {
+  async sendRequest(videoUri: string): Promise<void> {
     this.logger.info(`Sending video uri ${videoUri}`);
     const { endpoint, path, timeout } = this.poseServiceConfig;
     try {
@@ -21,14 +21,10 @@ export default class PoseService {
         },
       });
       this.logger.debug(
-        `Message successfully delivered with retry count: ${result.retryCount}, total time: ${result.timings.phases.total}ms`
+        `Message successfully delivered with retry count: ${result.retryCount}, total time: ${result.timings.phases.total}ms`,
       );
     } catch (err) {
-      this.logger.warn(
-        `An error occurred when sending request to pose service ${formatError(
-          err
-        )}`
-      );
+      this.logger.warn(`An error occurred when sending request to pose service ${formatError(err)}`);
       throw err;
     }
   }

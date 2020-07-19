@@ -7,39 +7,27 @@ export default class Database {
   private logger = getLogger();
   constructor(readonly connectionName: string) {}
 
-  setup() {}
-
-  async start() {
-    this.logger.info(
-      `Starting connection with connection name ${this.connectionName}`
-    );
+  async start(): Promise<void> {
+    this.logger.info(`Starting connection with connection name ${this.connectionName}`);
     await createConnection(this.connectionName);
-    this.logger.info(
-      `Started connection with connection name ${this.connectionName}`
-    );
+    this.logger.info(`Started connection with connection name ${this.connectionName}`);
   }
 
-  async stop() {
-    this.logger.info(
-      `Stopping connection with connection name ${this.connectionName}`
-    );
+  async stop(): Promise<void> {
+    this.logger.info(`Stopping connection with connection name ${this.connectionName}`);
     await getConnection(this.connectionName).close();
-    this.logger.info(
-      `Stopped connection with connection name ${this.connectionName}`
-    );
+    this.logger.info(`Stopped connection with connection name ${this.connectionName}`);
   }
 
-  async writeVideoResult(video: Video) {
+  async writeVideoResult(video: Video): Promise<Video> {
     this.logger.info(`Writing video to database`);
     const result = await getConnection(this.connectionName).manager.save(video);
     this.logger.info(`Video has been saved. Video is ${util.inspect(video)}`);
     return result;
   }
 
-  async updateVideoResult(id: string, storageUri: string) {
-    this.logger.info(
-      `Updating Video with id ${id} with new storage URI ${storageUri}`
-    );
+  async updateVideoResult(id: string, storageUri: string): Promise<Video> {
+    this.logger.info(`Updating Video with id ${id} with new storage URI ${storageUri}`);
     const connectionManager = getConnection(this.connectionName).manager;
     const video = await connectionManager.findOne(Video, id);
     if (!video) {

@@ -21,22 +21,18 @@ class HttpServer {
     return server;
   }
 
-  async start() {
-    await util.promisify(this.server.listen).bind(this.server)(
-      config.get("api.port")
-    );
+  async start(): Promise<void> {
+    await util.promisify(this.server.listen).bind(this.server)(config.get("api.port"));
     const address = this.server.address() as { port: number };
     this.logger.info(`Started HTTP Server on port ${address.port}`);
   }
 
-  async stop() {
+  async stop(): Promise<void> {
     try {
       await util.promisify(this.server.close).bind(this.server)();
       this.logger.info("Stopped HTTP Server");
     } catch (err) {
-      this.logger.warn(
-        `Error when trying to stop HTTP Server ${formatError(err)}`
-      );
+      this.logger.warn(`Error when trying to stop HTTP Server ${formatError(err)}`);
     }
   }
 }

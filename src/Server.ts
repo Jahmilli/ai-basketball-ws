@@ -11,11 +11,11 @@ export default class Server {
     // TODO: Add any environment variable checks here
   }
 
-  stop = async () => {
+  stop = async (): Promise<void> => {
     await this.app.stop();
   };
 
-  start = async () => {
+  start = async (): Promise<void> => {
     try {
       await this.app.start();
       this.logger.info("Add signal handlers");

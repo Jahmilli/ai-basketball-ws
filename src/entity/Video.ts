@@ -30,5 +30,5 @@ export class Video {
   feedback!: string;
 
   @Column("timestamptz")
-  uploaded_timestamp: any;
+  uploaded_timestamp!: Date;
 }
