@@ -66,7 +66,7 @@ export namespace s3TestHelper {
     await Promise.all(
       objects.Contents.map(async ({ Key }: any) => {
         return await deleteS3Object(Bucket, Key, s3);
-      })
+      }),
     );
   };
 }
@@ -87,15 +87,11 @@ export class DatabaseTestHelper {
       migrations: ["src/migration/**/*.ts"],
       subscribers: ["src/subscriber/**/*.ts"],
     });
-    logger.info(
-      `Started connection with connection name ${this.connectionName}`
-    );
+    logger.info(`Started connection with connection name ${this.connectionName}`);
   }
   async stop() {
     await getConnection(this.connectionName).close();
-    logger.info(
-      `Closed test connection with connection name ${this.connectionName}`
-    );
+    logger.info(`Closed test connection with connection name ${this.connectionName}`);
   }
   // TODO: Parameterise functions so doesn't only work for Video
   getVideoRows = async () => {
@@ -103,10 +99,6 @@ export class DatabaseTestHelper {
   };
 
   deleteAllVideoRows = async () => {
-    await getConnection(this.connectionName)
-      .createQueryBuilder()
-      .delete()
-      .from(Video)
-      .execute();
+    await getConnection(this.connectionName).createQueryBuilder().delete().from(Video).execute();
   };
 }
