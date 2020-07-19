@@ -1,6 +1,8 @@
 = ai-basketball-ws
 
-Add Description of Application here
+This application is responsible for persisting uploaded videos through the use of Postgres and S3 as well as passing on details about the information a Pose Recognition Service in order to perform pose recognition against the video. It does this by receiving an initial request with details about the uploaded video where it persists this into a Postgres database. A unique identifier is then generated which we return to the client. The client then uses this as the Filename of the video in a multipart request to a second route. We stream this request to S3 with the filename (minus the extension) as the key. 
+
+After the video is uploaded to S3, we then persist the storage URI of it into the database (we might not actually need to do this...) and then send this to the pose recognition service. Once we receive a successful response from the pose recognition service we can respond with 201 to the client! 
 
 :toc:
 
@@ -76,7 +78,8 @@ npm start
  /
  |- config/          # Config file per environment. For running in containerised environment, set NODE_ENV.
  |- proto/           # Location for Protobuf files
- |- src/classes/
+ |- src/modules/     # Almost wrapper functions around key components of the service
+ |- src/entity/      # TypeORM entities go here
  |- src/enums/
  |- src/interfaces/
  |- src/routes/      # HTTP Routes used by Express

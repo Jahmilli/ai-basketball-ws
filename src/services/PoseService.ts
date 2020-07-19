@@ -7,7 +7,7 @@ export default class PoseService {
   constructor(readonly poseServiceConfig: IPoseServiceConfig) {}
 
   async sendRequest(videoUri: string): Promise<void> {
-    this.logger.info(`Sending video uri ${videoUri}`);
+    this.logger.debug(`Sending video uri ${videoUri}`);
     const { endpoint, path, timeout } = this.poseServiceConfig;
     try {
       const result = await got(`${endpoint}${path}`, {
