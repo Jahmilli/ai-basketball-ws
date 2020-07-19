@@ -7,6 +7,7 @@ import S3Helper from "../../../classes/S3Helper";
 import config from "config";
 import { Video } from "../../../entity/Video";
 import Database from "../../../classes/Database";
+import PoseService from "../../../classes/PoseService";
 
 const route = Router();
 const logger = getLogger();
@@ -16,6 +17,7 @@ export default (app: Router) => {
   const s3Config: any = config.get("s3");
   const s3 = new S3Helper(s3Config);
   const db = new Database("video-connection");
+  const poseService = new PoseService(config.get("poseService"));
 
   // TODO: Refactor this insanely large handler...
   route.post("/stream", async (req: Request, res: Response) => {
@@ -23,7 +25,7 @@ export default (app: Router) => {
       `Received multipart request with body ${util.inspect(req.body)}`
     );
 
-    const key = `${Date.now()}-basketball.MOV`;
+    const key = `basketball.MOV`; // TODO: Figure out how we generate this...
     const { writeStream, managedUpload } = s3.upload(
       s3Config.videosBucket,
       key
@@ -59,14 +61,12 @@ export default (app: Router) => {
 
       try {
         await db.writeVideoResult(video);
-        // TODO: Now we send a request to the pose recognition server...
-
+        // TODO: Now we send a request to the pose service...
+        await poseService.sendRequest(uploadUri);
         // TODO: Determine what the response here should be
         res.writeHead(201, { Connection: "close", Location: "/" });
       } catch (err) {
-        logger.warn(
-          `An error occured when writing database result ${formatError(err)}`
-        );
+        logger.warn(`An error occured ${formatError(err)}`);
         // TODO: Determine what the response here should be
         res.writeHead(500, { Connection: "close", Location: "/" });
       }

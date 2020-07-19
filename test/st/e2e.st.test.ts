@@ -22,66 +22,77 @@ import config from "config";
 const logger = getLogger();
 const httpsServer = fastify();
 
-mockConfigGet.mockImplementation((key: string) => {
-  switch (key) {
-    case "s3": {
-      return {
-        videosBucket,
-        accessKeyId: "minioadmin",
-        secretAccessKey: "minioadmin",
-        endpoint: "127.0.0.1:9000",
-        sslEnabled: false,
-        s3ForcePathStyle: true,
-      };
-    }
-    default:
-      // Return actual value for all but above
-      return jest.requireActual("config").get(key);
-  }
-});
+const mockPoseService = jest.fn();
+const poseServicePath = "/pose/create";
+const videosBucket = "test-bucket";
+let poseServiceReceived = {};
 
-const mockRecognitionServer = jest.fn();
-// let responseDelayMs = 0;
-// Setup routes for the next ws we call...
-httpsServer.post("/routine/create", {}, async (request: any, reply: any) => {
+httpsServer.post(poseServicePath, {}, async (request: any, reply: any) => {
   logger.debug(
     `Received request in test server with body ${JSON.stringify(request.body)}`
   );
-  // await waitAsync(responseDelayMs);
+  poseServiceReceived = request.body; // Used to perform assertions on what was received
   await waitAsync(100);
   reply
     .code(
-      mockRecognitionServer({
+      mockPoseService({
         message: "Success",
       })
     )
     .send();
 });
 
-const videosBucket = "test-bucket";
-
 describe("End-2-End test", () => {
   const serverUrl = "http://localhost:4993";
   let server: Server;
-  let s3 = new S3Helper(config.get("s3"));
+  let s3: S3Helper;
   const dbTestHelper = new DatabaseTestHelper("test-connection");
+  let address: string;
 
   beforeAll(async () => {
-    await httpsServer.listen(0);
+    address = await httpsServer.listen(0);
+
+    mockConfigGet.mockImplementation((key: string) => {
+      switch (key) {
+        case "s3": {
+          return {
+            videosBucket,
+            accessKeyId: "minioadmin",
+            secretAccessKey: "minioadmin",
+            endpoint: "127.0.0.1:9000",
+            sslEnabled: false,
+            s3ForcePathStyle: true,
+          };
+        }
+        case "poseService": {
+          return {
+            endpoint: address,
+            path: poseServicePath,
+          };
+        }
+        default:
+          // Return actual value for all but above
+          return jest.requireActual("config").get(key);
+      }
+    });
+
+    s3 = new S3Helper(config.get("s3"));
     await s3TestHelper.createS3Bucket(videosBucket, s3.getS3());
     await dbTestHelper.start();
   });
 
   afterAll(async () => {
     await httpsServer.close();
-    await s3TestHelper.deleteS3Bucket(videosBucket, s3.getS3());
     await dbTestHelper.stop();
+    await s3TestHelper.deleteS3Bucket(videosBucket, s3.getS3());
   });
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    server = new Server();
+    poseServiceReceived = {};
     await dbTestHelper.deleteAllVideoRows();
+
+    server = new Server();
     await server.start();
     await waitAsync(2000);
   }, 10000);
@@ -93,6 +104,7 @@ describe("End-2-End test", () => {
 
   describe("Upload Video", () => {
     it("Should upload a video, save it to S3, save it to Postgres and send result to Pose Detection Server", async () => {
+      mockPoseService.mockReturnValueOnce(200);
       let s3Result: any = await s3TestHelper.listObjects(
         videosBucket,
         s3.getS3()
@@ -122,12 +134,15 @@ describe("End-2-End test", () => {
           resolve();
         });
       });
-      expect(true);
+
       s3Result = await s3TestHelper.listObjects(videosBucket, s3.getS3());
       expect(s3Result.Contents.length).toEqual(1);
       dbResult = await dbTestHelper.getVideoRows();
       // TODO: Assert row values are correct...
       expect(dbResult.length).toEqual(1);
+      expect(poseServiceReceived).toEqual({
+        videoUri: "s3://test-bucket/basketball.MOV",
+      });
     }, 15000);
   });
 });

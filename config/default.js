@@ -9,7 +9,12 @@ module.exports = {
     minAudioLengthMs: 1500,
   },
   api: {
-    prefix: "/api",
-    port: 3001,
+    prefix: "/api", // Prefix that all express routes will use
+    port: 3001, // Port that Express will use
+  },
+  poseService: {
+    endpoint: "", // Endpoint of the pose server
+    path: "/pose/recognize", // Path that we request from the pose server
+    timeout: 1000,
   },
 };
