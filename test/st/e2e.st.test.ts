@@ -13,11 +13,10 @@ import {
 } from "../utils/TestHelper";
 import { getLogger, formatError } from "../../src/utils/Logging";
 import fastify from "fastify";
-import FormData from "form-data";
-import fs from "fs";
 import * as path from "path";
 import S3Helper from "../../src/classes/S3Helper";
 import config from "config";
+import request from "supertest";
 
 const logger = getLogger();
 const httpsServer = fastify();
@@ -104,6 +103,7 @@ describe("End-2-End test", () => {
 
   describe("Upload Video", () => {
     it("Should upload a video, save it to S3, save it to Postgres and send result to Pose Detection Server", async () => {
+      // Arrange
       mockPoseService.mockReturnValueOnce(200);
       let s3Result: any = await s3TestHelper.listObjects(
         videosBucket,
@@ -112,29 +112,17 @@ describe("End-2-End test", () => {
       expect(s3Result.Contents.length).toEqual(0);
       let dbResult = await dbTestHelper.getVideoRows();
       expect(dbResult.length).toEqual(0);
-      await waitAsync(4000);
-      const formData = new FormData();
-      formData.append(
-        "myFile",
-        fs.createReadStream(
+
+      // Act
+      await request(`${serverUrl}`)
+        .post("/api/v1/video/stream")
+        .attach(
+          "myFile",
           path.join(__dirname, "..", "fixtures", "test-video.MOV")
         )
-      );
+        .expect(201);
 
-      await new Promise((resolve, reject) => {
-        // TODO: Await on response from server here and assert on it...
-        formData.submit(`${serverUrl}/api/v1/video/stream`, (err, res) => {
-          if (err) {
-            logger.warn(
-              `An error occurred when submitting test video ${formatError(err)}`
-            );
-            reject("An error occurred when submitting test video");
-          }
-          res.resume();
-          resolve();
-        });
-      });
-
+      // Assert
       s3Result = await s3TestHelper.listObjects(videosBucket, s3.getS3());
       expect(s3Result.Contents.length).toEqual(1);
       dbResult = await dbTestHelper.getVideoRows();
