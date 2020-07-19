@@ -19,7 +19,6 @@ import * as path from "path";
 import S3Helper from "../../src/classes/S3Helper";
 import config from "config";
 import request from "supertest";
-import { any } from "@hapi/joi";
 
 const logger = getLogger();
 const httpsServer = fastify();
@@ -105,6 +104,30 @@ describe("End-2-End test", () => {
   });
 
   describe("Upload Video", () => {
+    it.only.each([
+      "name",
+      "description",
+      "angleOfShot",
+      "typeOfShot",
+      "uploadedTimestamp",
+    ])(
+      "Should return 400 if field %s is missing from the request body",
+      async (field: string) => {
+        let dbResult = await dbTestHelper.getVideoRows();
+        expect(dbResult.length).toEqual(0);
+
+        const requestBody = getTestRequest();
+        // @ts-ignore
+        delete requestBody[field];
+
+        await request(`${serverUrl}`)
+          .post("/api/v1/video/create")
+          .send(requestBody)
+          .expect(400);
+        dbResult = await dbTestHelper.getVideoRows();
+        expect(dbResult.length).toEqual(0);
+      }
+    );
     it("Should upload video information, save it to Postgres and return video details back to client", async () => {
       let dbResult = await dbTestHelper.getVideoRows();
       expect(dbResult.length).toEqual(0);
@@ -116,18 +139,7 @@ describe("End-2-End test", () => {
         .send(requestBody)
         .then((res) => {
           expect(res.status).toEqual(201);
-          expect(res.body).toMatchObject({
-            user_id: "12345",
-            name: "Temporary video name",
-            description: "This is a temporary description",
-            is_processed: false,
-            angle_of_shot: "side-on",
-            type_of_shot: "free-throw",
-            storage_uri: "",
-            feedback: "",
-            uploaded_timestamp: "2020-07-19T02:45:32.722Z",
-            id: expect.any(String),
-          });
+          expect(res.body).toMatchObject(getExpectedDbResult());
         });
 
       dbResult = await dbTestHelper.getVideoRows();

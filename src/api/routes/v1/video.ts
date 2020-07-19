@@ -8,6 +8,8 @@ import config from "config";
 import { Video } from "../../../entity/Video";
 import Database from "../../../classes/Database";
 import PoseService from "../../../classes/PoseService";
+import validationMiddleware from "../../middlewares/validation";
+import uploadVideoSchema from "../../schemas/uploadVideoSchema";
 
 const route = Router();
 const logger = getLogger();
@@ -20,32 +22,36 @@ export default (app: Router) => {
   const poseService = new PoseService(config.get("poseService"));
 
   // Responsible for saving request in database and returning id etc to client
-  route.post("/create", async (req: Request, res: Response) => {
-    logger.info(`Received request to /create ${util.inspect(req.body)}`);
+  route.post(
+    "/create",
+    validationMiddleware(uploadVideoSchema, "body"),
+    async (req: Request, res: Response) => {
+      logger.info(`Received request to /create ${util.inspect(req.body)}`);
 
-    const video = new Video();
-    video.user_id = req.body.userId;
-    video.name = req.body.name;
-    video.description = req.body.description;
-    video.is_processed = false;
-    video.angle_of_shot = req.body.angleOfShot;
-    video.type_of_shot = req.body.typeOfShot;
-    video.storage_uri = "";
-    video.feedback = "";
-    video.uploaded_timestamp = new Date(req.body.uploadedTimestamp);
-    try {
-      const result = await db.writeVideoResult(video);
-      // TODO: Might want to do snakecase to camelcase conversion here
-      res.status(201).json(result);
-    } catch (err) {
-      logger.warn(
-        `An error occurred when writing video ${util.inspect(
-          video
-        )} to database ${formatError(err)}`
-      );
-      res.send(500);
+      const video = new Video();
+      video.user_id = req.body.userId;
+      video.name = req.body.name;
+      video.description = req.body.description;
+      video.is_processed = false;
+      video.angle_of_shot = req.body.angleOfShot;
+      video.type_of_shot = req.body.typeOfShot;
+      video.storage_uri = "";
+      video.feedback = "";
+      video.uploaded_timestamp = new Date(req.body.uploadedTimestamp);
+      try {
+        const result = await db.writeVideoResult(video);
+        // TODO: Might want to do snakecase to camelcase conversion here
+        res.status(201).json(result);
+      } catch (err) {
+        logger.warn(
+          `An error occurred when writing video ${util.inspect(
+            video
+          )} to database ${formatError(err)}`
+        );
+        res.send(500);
+      }
     }
-  });
+  );
 
   // TODO: Refactor this insanely large handler...
   route.post("/stream", async (req: Request, res: Response) => {
@@ -85,7 +91,6 @@ export default (app: Router) => {
           throw new Error("Missing key");
         }
         await db.updateVideoResult(key, uploadUri);
-        // TODO: Now we send a request to the pose service...
         await poseService.sendRequest(uploadUri);
         // TODO: Determine what the response here should be
         res.writeHead(201, { Connection: "close", Location: "/" });
