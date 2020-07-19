@@ -10,13 +10,15 @@ import {
   s3TestHelper,
   waitAsync,
   DatabaseTestHelper,
+  getTestRequest,
 } from "../utils/TestHelper";
-import { getLogger, formatError } from "../../src/utils/Logging";
+import { getLogger } from "../../src/utils/Logging";
 import fastify from "fastify";
 import * as path from "path";
 import S3Helper from "../../src/classes/S3Helper";
 import config from "config";
 import request from "supertest";
+import { any } from "@hapi/joi";
 
 const logger = getLogger();
 const httpsServer = fastify();
@@ -102,7 +104,37 @@ describe("End-2-End test", () => {
   });
 
   describe("Upload Video", () => {
-    it("Should upload a video, save it to S3, save it to Postgres and send result to Pose Detection Server", async () => {
+    it("Should upload video information, save it to Postgres and return video details back to client", async () => {
+      let dbResult = await dbTestHelper.getVideoRows();
+      expect(dbResult.length).toEqual(0);
+
+      const requestBody = getTestRequest();
+
+      await request(`${serverUrl}`)
+        .post("/api/v1/video/create")
+        .send(requestBody)
+        .then((res) => {
+          expect(res.status).toEqual(201);
+          expect(res.body).toMatchObject({
+            user_id: "12345",
+            name: "Temporary video name",
+            description: "This is a temporary description",
+            is_processed: false,
+            angle_of_shot: "side-on",
+            type_of_shot: "free-throw",
+            storage_uri: "",
+            feedback: "",
+            uploaded_timestamp: "2020-07-19T02:45:32.722Z",
+            id: expect.any(String),
+          });
+        });
+
+      dbResult = await dbTestHelper.getVideoRows();
+      // TODO: Assert row values are correct...
+      expect(dbResult.length).toEqual(1);
+    });
+
+    it("Should upload a video, save it to S3, save it to Postgres and send result to Pose Service", async () => {
       // Arrange
       mockPoseService.mockReturnValueOnce(200);
       let s3Result: any = await s3TestHelper.listObjects(
@@ -113,6 +145,7 @@ describe("End-2-End test", () => {
       let dbResult = await dbTestHelper.getVideoRows();
       expect(dbResult.length).toEqual(0);
 
+      // const requestBody = getTestRequest();
       // Act
       await request(`${serverUrl}`)
         .post("/api/v1/video/stream")

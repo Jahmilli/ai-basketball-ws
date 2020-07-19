@@ -19,6 +19,34 @@ export default (app: Router) => {
   const db = new Database("video-connection");
   const poseService = new PoseService(config.get("poseService"));
 
+  // Responsible for saving request in database and returning id etc to client
+  route.post("/create", async (req: Request, res: Response) => {
+    logger.info(`Received request to /create ${util.inspect(req.body)}`);
+
+    const video = new Video();
+    video.user_id = req.body.userId;
+    video.name = req.body.name;
+    video.description = req.body.description;
+    video.is_processed = false;
+    video.angle_of_shot = req.body.angleOfShot;
+    video.type_of_shot = req.body.typeOfShot;
+    video.storage_uri = "";
+    video.feedback = "";
+    video.uploaded_timestamp = req.body.uploadedTimestamp;
+    try {
+      const result = await db.writeVideoResult(video);
+      console.log("result is ", result);
+      res.status(201).json(result);
+    } catch (err) {
+      logger.warn(
+        `An error occurred when writing video ${util.inspect(
+          video
+        )} to database ${formatError(err)}`
+      );
+      res.send(500);
+    }
+  });
+
   // TODO: Refactor this insanely large handler...
   route.post("/stream", async (req: Request, res: Response) => {
     logger.info(
@@ -52,15 +80,6 @@ export default (app: Router) => {
       const uploadUri = await uploadUriPromise;
 
       const video = new Video();
-      video.user_id = "Test User";
-      video.name = "Temporary video name";
-      video.description = "This is a temporary description";
-      video.is_processed = false;
-      video.angle_of_shot = "side-on";
-      video.type_of_shot = "free-throw";
-      video.storage_uri = uploadUri;
-      video.feedback = "";
-      video.created_timestamp = new Date();
 
       try {
         await db.writeVideoResult(video);

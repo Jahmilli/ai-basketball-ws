@@ -14,9 +14,14 @@ export const waitAsync = (timeout: any) => {
 };
 
 export const getTestRequest = () => {
-  // Figure out what request is...
+  // TODO: Figure out what actual request will have to be...
   return {
-    message: "hi",
+    userId: "12345",
+    name: "Temporary video name",
+    description: "This is a temporary description",
+    angleOfShot: "side-on",
+    typeOfShot: "free-throw",
+    uploadedTimestamp: "2020-07-19T02:45:32.722Z",
   };
 };
 

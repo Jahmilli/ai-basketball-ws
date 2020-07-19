@@ -31,7 +31,8 @@ export default class Database {
 
   async writeVideoResult(video: Video) {
     this.logger.info(`Writing video to database`);
-    await getConnection(this.connectionName).manager.save(video);
+    const result = await getConnection(this.connectionName).manager.save(video);
     this.logger.info(`Video has been saved. Video is ${util.inspect(video)}`);
+    return result;
   }
 }
