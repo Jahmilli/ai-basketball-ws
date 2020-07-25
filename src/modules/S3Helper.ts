@@ -15,7 +15,10 @@ export default class S3Helper {
    * @param { type } string bucket name
    * @param { type } string key name
    */
-  upload(Bucket: string, Key: string): { writeStream: stream.PassThrough; managedUpload: AWS.S3.ManagedUpload } {
+  upload(
+    Bucket: string,
+    Key: string
+  ): { writeStream: stream.PassThrough; managedUpload: AWS.S3.ManagedUpload } {
     const pass = new stream.PassThrough();
     return {
       writeStream: pass,

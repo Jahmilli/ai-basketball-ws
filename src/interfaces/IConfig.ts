@@ -8,7 +8,6 @@ export interface IS3Config {
 }
 
 export interface IApiConfig {
-  prefix: string;
   port: number;
 }
 

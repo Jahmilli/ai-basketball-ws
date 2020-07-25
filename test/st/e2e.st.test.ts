@@ -6,7 +6,13 @@ jest.mock("config", () => {
 });
 
 import Server from "../../src/Server";
-import { S3TestHelper, waitAsync, DatabaseTestHelper, getTestRequest, getExpectedDbResult } from "../utils/TestHelper";
+import {
+  S3TestHelper,
+  waitAsync,
+  DatabaseTestHelper,
+  getTestRequest,
+  getExpectedDbResult,
+} from "../utils/TestHelper";
 import { getLogger } from "../../src/utils/Logging";
 import fastify from "fastify";
 import * as path from "path";
@@ -24,14 +30,16 @@ const videosBucket = "test-bucket";
 let poseServiceReceived: any = {};
 
 httpsServer.post(poseServicePath, {}, async (request, reply) => {
-  logger.debug(`Received request in test server with body ${JSON.stringify(request.body)}`);
+  logger.debug(
+    `Received request in test server with body ${JSON.stringify(request.body)}`
+  );
   poseServiceReceived = request.body; // Used to perform assertions on what was received
   await waitAsync(100);
   reply
     .code(
       mockPoseService({
         message: "Success",
-      }),
+      })
     )
     .send();
 });
@@ -98,7 +106,14 @@ describe("End-2-End test", () => {
   });
 
   describe("Upload Video", () => {
-    it.each(["userId", "name", "description", "angleOfShot", "typeOfShot", "uploadedTimestamp"])(
+    it.each([
+      "userId",
+      "name",
+      "description",
+      "angleOfShot",
+      "typeOfShot",
+      "uploadedTimestamp",
+    ])(
       "Should return 400 if field %s is missing from the request body",
       async (field: string) => {
         let dbResult = await dbTestHelper.getVideoRows();
@@ -108,19 +123,23 @@ describe("End-2-End test", () => {
         // @ts-ignore
         delete requestBody[field];
 
-        await request(`${serverUrl}`).post("/api/v1/video/create").send(requestBody).expect(400);
+        await request(serverUrl)
+          .post("/v1/video/create")
+          .send(requestBody)
+          .expect(400);
         dbResult = await dbTestHelper.getVideoRows();
         expect(dbResult.length).toEqual(0);
-      },
+      }
     );
+
     it("Should upload video information, save it to Postgres and return video details back to client", async () => {
       let dbResult = await dbTestHelper.getVideoRows();
       expect(dbResult.length).toEqual(0);
 
       const requestBody = getTestRequest();
 
-      await request(`${serverUrl}`)
-        .post("/api/v1/video/create")
+      await request(serverUrl)
+        .post("/v1/video/create")
         .send(requestBody)
         .then((res) => {
           expect(res.status).toEqual(201);
@@ -140,8 +159,8 @@ describe("End-2-End test", () => {
       expect(dbResult.length).toEqual(0);
 
       let resultId = "";
-      await request(`${serverUrl}`)
-        .post("/api/v1/video/create")
+      await request(serverUrl)
+        .post("/v1/video/create")
         .send(getTestRequest())
         .then((res) => {
           resultId = res.body.id;
@@ -149,9 +168,12 @@ describe("End-2-End test", () => {
           expect(res.body).toMatchObject(getExpectedDbResult());
         });
 
-      await request(`${serverUrl}`)
-        .post("/api/v1/video/stream")
-        .attach(`${resultId}.MOV`, path.join(__dirname, "..", "fixtures", "test-video.MOV"))
+      await request(serverUrl)
+        .post("/v1/video/stream")
+        .attach(
+          `${resultId}.MOV`,
+          path.join(__dirname, "..", "fixtures", "test-video.MOV")
+        )
         .expect(201);
 
       s3Result = await s3TestHelper.listObjects(videosBucket, s3Helper.s3);

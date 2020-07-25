@@ -22,10 +22,14 @@ export default class PoseService {
         },
       });
       this.logger.debug(
-        `Message successfully delivered with retry count: ${result.retryCount}, total time: ${result.timings.phases.total}ms`,
+        `Message successfully delivered with retry count: ${result.retryCount}, total time: ${result.timings.phases.total}ms`
       );
     } catch (err) {
-      this.logger.warn(`An error occurred when sending request to pose service ${formatError(err)}`);
+      this.logger.warn(
+        `An error occurred when sending request to pose service ${formatError(
+          err
+        )}`
+      );
       throw err;
     }
   }

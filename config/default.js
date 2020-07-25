@@ -8,7 +8,6 @@ module.exports = {
     s3ForcePathStyle: true, // Whether to force path style URLs for S3 objects
   },
   api: {
-    prefix: "/api", // Prefix that all express routes will use
     port: 3001, // Port that Express will use
   },
   poseService: {

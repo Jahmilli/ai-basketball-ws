@@ -9,17 +9,25 @@ export default class Database {
 
   async start(): Promise<void> {
     await createConnection(this.connectionName);
-    this.logger.info(`Started connection with connection name ${this.connectionName}`);
+    this.logger.info(
+      `Started connection with connection name ${this.connectionName}`
+    );
   }
 
   async stop(): Promise<void> {
     await getConnection(this.connectionName).close();
-    this.logger.info(`Stopped connection with connection name ${this.connectionName}`);
+    this.logger.info(
+      `Stopped connection with connection name ${this.connectionName}`
+    );
   }
 
   async writeVideoResult(video: Video): Promise<Video> {
     const result = await getConnection(this.connectionName).manager.save(video);
-    this.logger.info(`Video has been saved. Video is ${util.inspect(video)}`);
+    this.logger.info(
+      `Video entry has been saved in the database. Video is ${util.inspect(
+        video
+      )}`
+    );
     return result;
   }
 

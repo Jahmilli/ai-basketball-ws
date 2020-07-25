@@ -61,6 +61,9 @@
     "ts-node": "^8.10.2",
     "typescript": "^3.9.6"
   },
+  "prettier": {
+    "trailingComma": "es5"
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged && npm run lint && npm audit && npm test"

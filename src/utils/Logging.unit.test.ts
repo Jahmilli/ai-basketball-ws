@@ -4,13 +4,19 @@ import * as winston from "winston";
 describe("Logging", () => {
   describe("formatError", () => {
     it("Should return Error: <message> for type Error", () => {
-      expect(formatError(new Error("custom error message"))).toEqual("Error: custom error message");
+      expect(formatError(new Error("custom error message"))).toEqual(
+        "Error: custom error message"
+      );
     });
     it("Should return EvalError: <message> for type EvalError", () => {
-      expect(formatError(new EvalError("custom error message"))).toEqual("EvalError: custom error message");
+      expect(formatError(new EvalError("custom error message"))).toEqual(
+        "EvalError: custom error message"
+      );
     });
     it("Should return <message> for non-Error types", () => {
-      expect(formatError("custom error message")).toEqual("custom error message");
+      expect(formatError("custom error message")).toEqual(
+        "custom error message"
+      );
     });
   });
   describe("getLogger", () => {
