@@ -1,15 +1,14 @@
-const { createLogger, format, transports } = require("winston");
+import { createLogger, format, transports, Logger } from "winston";
 const { combine, timestamp, json } = format;
 
-export const formatError = (err: any) => {
+export const formatError = (err: Error | string): string => {
   if (err instanceof Error) {
     return `${err.name}: ${err.message}`;
-  } else {
-    return err;
   }
+  return err;
 };
 
-export function getLogger() {
+export const getLogger = (): Logger => {
   return createLogger({
     level: process.env.LOG_LEVEL || "info",
     format: combine(timestamp(), json()),
@@ -19,4 +18,4 @@ export function getLogger() {
       }),
     ],
   });
-}
+};

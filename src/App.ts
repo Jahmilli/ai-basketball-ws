@@ -1,12 +1,14 @@
 import { getLogger } from "./utils/Logging";
 import { Express } from "express";
-import { setupExpress } from "./classes/express";
-import HttpServer from "./classes/HttpServer";
+import { setupExpress } from "./modules/Express";
+import HttpServer from "./modules/HttpServer";
+import Database from "./modules/Database";
 
 export default class App {
   readonly logger = getLogger();
   readonly server: HttpServer;
   private ex: Express;
+  private db = new Database("video-connection");
 
   /**
    * Only add static code to constructor to make unit testing possible.
@@ -16,13 +18,15 @@ export default class App {
     this.server = new HttpServer(this.ex);
   }
 
-  async start() {
+  async start(): Promise<void> {
     this.logger.info("Starting up...");
+    await this.db.start();
     await this.server.start();
     this.logger.info("Started HTTP Server");
   }
 
-  async stop() {
+  async stop(): Promise<void> {
     await this.server.stop();
+    await this.db.stop();
   }
 }
