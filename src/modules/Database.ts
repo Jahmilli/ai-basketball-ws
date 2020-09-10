@@ -43,4 +43,9 @@ export default class Database {
     this.logger.info(`Video has been updated. Video is ${util.inspect(video)}`);
     return video;
   }
+  async getVideosForUser(userId: string): Promise<Video[] | undefined> {
+    const connectionManager = getConnection(this.connectionName).manager;
+    const result = await connectionManager.find(Video, { user_id: userId });
+    return result;
+  }
 }

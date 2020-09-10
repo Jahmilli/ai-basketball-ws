@@ -23,6 +23,18 @@ export default (app: Router): void => {
   const upload = new Upload();
   app.use("/v1", route);
 
+  route.get("/video", async (req: Request, res: Response) => {
+    logger.info(`Received GET request to /video ${util.inspect(req.body)}`);
+    if (!req.query) {
+      logger.info(`Received request without query param`);
+      res.sendStatus(400);
+    }
+    console.log("req.query is ", req.query);
+    // @ts-ignore
+    const result = await db.getVideosForUser(req.query.userId);
+    console.log("result is ", result);
+    res.json(result);
+  });
   // Responsible for saving request in database and returning id etc to client
   route.post(
     "/video/create",
