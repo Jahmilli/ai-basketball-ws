@@ -39,10 +39,14 @@ export default class Database {
       throw new Error("Video not found in database");
     }
     video.storage_uri = storageUri;
+    // NOTE: This should obviously not be hardcoded here but just using for testing
+    video.feedback = "Bring your feet closer together bro";
+    video.is_processed = true;
     await connectionManager.save(video);
     this.logger.info(`Video has been updated. Video is ${util.inspect(video)}`);
     return video;
   }
+
   async getVideosForUser(userId: string): Promise<Video[] | undefined> {
     const connectionManager = getConnection(this.connectionName).manager;
     const result = await connectionManager.find(Video, { user_id: userId });
