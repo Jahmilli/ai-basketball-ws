@@ -107,7 +107,7 @@ export default (app: Router): void => {
           throw new Error("Missing key");
         }
         await db.updateVideoResult(fileId, uploadUri);
-        await poseService.sendRequest(uploadUri);
+        await poseService.sendRequest(fileId, uploadUri);
         // TODO: Determine what the response here should be
         res.writeHead(201, { Connection: "close", Location: "/" });
       } catch (err) {

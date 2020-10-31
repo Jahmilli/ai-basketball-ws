@@ -6,7 +6,7 @@ export default class PoseService {
   private logger = getLogger();
   constructor(readonly poseServiceConfig: IPoseServiceConfig) {}
 
-  async sendRequest(videoUri: string): Promise<void> {
+  async sendRequest(id: string, videoUri: string): Promise<void> {
     this.logger.debug(`Sending video uri ${videoUri}`);
     const { endpoint, path, timeout } = this.poseServiceConfig;
     try {
@@ -18,6 +18,7 @@ export default class PoseService {
         retry: 0, // Must be set to 0 or got() will retry after requestTimeout
         timeout: timeout,
         json: {
+          id,
           videoUri,
         },
       });
