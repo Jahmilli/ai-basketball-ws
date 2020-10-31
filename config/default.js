@@ -11,8 +11,8 @@ module.exports = {
     port: 3001, // Port that Express will use
   },
   poseService: {
-    endpoint: "", // Endpoint of the pose server
-    path: "/pose/recognize", // Path that we request from the pose server
-    timeout: 1000,
+    endpoint: "http:localhost:3002", // Endpoint of the pose server
+    path: "/v1/video/receive", // Path that we request from the pose server
+    timeout: 5000,
   },
 };
