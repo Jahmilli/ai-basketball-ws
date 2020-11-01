@@ -50,7 +50,7 @@ export default (app: Router): void => {
       video.angle_of_shot = req.body.angleOfShot;
       video.type_of_shot = req.body.typeOfShot;
       video.storage_uri = "";
-      video.feedback = "";
+      video.feedback = null;
       video.uploaded_timestamp = new Date(req.body.uploadedTimestamp);
 
       try {

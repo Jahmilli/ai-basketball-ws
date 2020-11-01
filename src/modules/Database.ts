@@ -40,8 +40,12 @@ export default class Database {
     }
     video.storage_uri = storageUri;
     // NOTE: This should obviously not be hardcoded here but just using for testing
-    video.feedback = "Bring your feet closer together bro";
-    video.is_processed = true;
+    // video.feedback = {
+    //   multiAxis: "test feedback",
+    //   singleAxis: "test feedback",
+    //   angle: "test feedback",
+    // };
+    // video.is_processed = true;
     await connectionManager.save(video);
     this.logger.info(`Video has been updated. Video is ${util.inspect(video)}`);
     return video;
