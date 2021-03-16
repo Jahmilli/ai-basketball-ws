@@ -112,7 +112,7 @@ describe("End-2-End test", () => {
       "description",
       "angleOfShot",
       "typeOfShot",
-      "uploadedTimestamp",
+      "createdTimestamp",
     ])(
       "Should return 400 if field %s is missing from the request body",
       async (field: string) => {
@@ -186,7 +186,7 @@ describe("End-2-End test", () => {
       expect(dbResult[0]).toMatchObject({
         ...getExpectedDbResult(),
         storage_uri: expectedUri,
-        uploaded_timestamp: new Date("2020-07-19T02:45:32.722Z"),
+        createdTimestamp: new Date("2020-07-19T02:45:32.722Z"),
       });
     }, 15000);
   });

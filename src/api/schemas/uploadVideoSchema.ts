@@ -6,8 +6,8 @@ const uploadVideoSchema = Joi.object({
   description: Joi.string().required(),
   angleOfShot: Joi.string().required(),
   typeOfShot: Joi.string().required(),
-  // uploadedTimestamp: Joi.date().required(), // This should be what is used but will look at it later....
-  uploadedTimestamp: Joi.string().required(),
+  // createdTimestamp: Joi.date().required(), // This should be what is used but will look at it later....
+  createdTmestamp: Joi.string().required(),
 });
 
 export default uploadVideoSchema;

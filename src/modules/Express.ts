@@ -14,6 +14,7 @@ export const setupExpress = (): Express => {
     .use(express.urlencoded({ extended: true }))
     .use(bodyParser.json())
     .use(router);
+  // TODO: Add in 404 handler and error handler here
 
   getLogger().info("Setup Express");
   return app;
