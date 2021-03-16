@@ -27,7 +27,7 @@ This service relies on Minio and Postgres. It is not required for normal develop
 === Run Minio Locally
 
 ```
-docker run -p 9000:9000 minio/minio server /data
+docker run -itd -p 9000:9000 minio/minio server /data
 ```
 
 To view a Minio Dashboard, go to: http://127.0.0.1:9000/
@@ -35,6 +35,8 @@ To view a Minio Dashboard, go to: http://127.0.0.1:9000/
 . Password: minioadmin
 
 === Run Postgres Locally
+
+Note: That we also need the database changes deployed from ai-basketball-database (See README from that repo)
 
 ```
 docker run --rm -itd --name aibasketball -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_DB=mydb -p 5432:5432 postgres
@@ -45,11 +47,13 @@ docker run --rm -itd --name aibasketball -e POSTGRES_PASSWORD=mysecretpassword -
 Install required packages: `npm install`
 
 Run Unit and Integration tests:
+
 ```
 npm test
 ```
 
 Build and run locally:
+
 ```
 # Start in development mode:
 npm run start:dev
@@ -62,6 +66,7 @@ To build: `npm run build`
 To run: `npm start`
 
 Test Docker build locally:
+
 ```
 npm install && npm run build
 docker build -t ai-basketball-ws .

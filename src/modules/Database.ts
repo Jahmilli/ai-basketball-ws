@@ -9,17 +9,25 @@ export default class Database {
 
   async start(): Promise<void> {
     await createConnection(this.connectionName);
-    this.logger.info(`Started connection with connection name ${this.connectionName}`);
+    this.logger.info(
+      `Started connection with connection name ${this.connectionName}`
+    );
   }
 
   async stop(): Promise<void> {
     await getConnection(this.connectionName).close();
-    this.logger.info(`Stopped connection with connection name ${this.connectionName}`);
+    this.logger.info(
+      `Stopped connection with connection name ${this.connectionName}`
+    );
   }
 
   async writeVideoResult(video: Video): Promise<Video> {
     const result = await getConnection(this.connectionName).manager.save(video);
-    this.logger.info(`Video has been saved. Video is ${util.inspect(video)}`);
+    this.logger.info(
+      `Video entry has been saved in the database. Video is ${util.inspect(
+        video
+      )}`
+    );
     return result;
   }
 
@@ -31,8 +39,21 @@ export default class Database {
       throw new Error("Video not found in database");
     }
     video.storage_uri = storageUri;
+    // NOTE: This should obviously not be hardcoded here but just using for testing
+    // video.feedback = {
+    //   multiAxis: "test feedback",
+    //   singleAxis: "test feedback",
+    //   angle: "test feedback",
+    // };
+    // video.is_processed = true;
     await connectionManager.save(video);
     this.logger.info(`Video has been updated. Video is ${util.inspect(video)}`);
     return video;
+  }
+
+  async getVideosForUser(userId: string): Promise<Video[] | undefined> {
+    const connectionManager = getConnection(this.connectionName).manager;
+    const result = await connectionManager.find(Video, { user_id: userId });
+    return result;
   }
 }

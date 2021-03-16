@@ -8,12 +8,11 @@ module.exports = {
     s3ForcePathStyle: true, // Whether to force path style URLs for S3 objects
   },
   api: {
-    prefix: "/api", // Prefix that all express routes will use
     port: 3001, // Port that Express will use
   },
   poseService: {
-    endpoint: "", // Endpoint of the pose server
-    path: "/pose/recognize", // Path that we request from the pose server
-    timeout: 1000,
+    endpoint: "http:localhost:3002", // Endpoint of the pose server
+    path: "/api/v1/video/receive", // Path that we request from the pose server
+    timeout: 5000,
   },
 };

@@ -11,7 +11,9 @@ export default class Upload {
       this.logger.info(`URI of uploaded video is ${uri}`);
       return uri;
     } catch (err) {
-      this.logger.warn(`An error occurred when getting object result in S3 ${formatError(err)}`);
+      this.logger.warn(
+        `An error occurred when getting object result in S3 ${formatError(err)}`
+      );
       throw err;
     }
   };

@@ -12,6 +12,7 @@
     "test:all": "jest --coverage --verbose",
     "start": "node dist/index.js",
     "start:dev": "NODE_ENV=dev ts-node src/index.ts",
+    "start:devws": "set NODE_ENV=dev&& set LOG_LEVEL=debug&& ts-node src/index.ts",
     "package": "tar czf ${npm_package_name}.tar.gz Dockerfile config dist node_modules"
   },
   "repository": {
@@ -60,6 +61,9 @@
     "ts-jest": "^25.5.1",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.6"
+  },
+  "prettier": {
+    "trailingComma": "es5"
   },
   "husky": {
     "hooks": {

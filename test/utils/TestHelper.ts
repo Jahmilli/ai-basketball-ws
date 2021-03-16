@@ -19,8 +19,8 @@ export const getTestRequest = () => {
     userId: "12345",
     name: "Temporary video name",
     description: "This is a temporary description",
-    angleOfShot: "side-on",
-    typeOfShot: "free-throw",
+    angleOfShot: "side on",
+    typeOfShot: "free throw",
     uploadedTimestamp: new Date("2020-07-19T02:45:32.722Z"),
   };
 };
@@ -31,8 +31,8 @@ export const getExpectedDbResult = () => {
     name: "Temporary video name",
     description: "This is a temporary description",
     is_processed: false,
-    angle_of_shot: "side-on",
-    type_of_shot: "free-throw",
+    angle_of_shot: "side on",
+    type_of_shot: "free throw",
     storage_uri: "",
     feedback: "",
     uploaded_timestamp: "2020-07-19T02:45:32.722Z",
@@ -66,7 +66,7 @@ export class S3TestHelper {
     await Promise.all(
       objects.Contents.map(async ({ Key }: any) => {
         return this.deleteS3Object(Bucket, Key, s3);
-      }),
+      })
     );
   };
 }
@@ -87,11 +87,15 @@ export class DatabaseTestHelper {
       migrations: ["src/migration/**/*.ts"],
       subscribers: ["src/subscriber/**/*.ts"],
     });
-    logger.info(`Started connection with connection name ${this.connectionName}`);
+    logger.info(
+      `Started connection with connection name ${this.connectionName}`
+    );
   }
   async stop() {
     await getConnection(this.connectionName).close();
-    logger.info(`Closed test connection with connection name ${this.connectionName}`);
+    logger.info(
+      `Closed test connection with connection name ${this.connectionName}`
+    );
   }
   // TODO: Parameterise functions so doesn't only work for Video
   getVideoRows = async () => {
@@ -99,6 +103,10 @@ export class DatabaseTestHelper {
   };
 
   deleteAllVideoRows = async () => {
-    await getConnection(this.connectionName).createQueryBuilder().delete().from(Video).execute();
+    await getConnection(this.connectionName)
+      .createQueryBuilder()
+      .delete()
+      .from(Video)
+      .execute();
   };
 }

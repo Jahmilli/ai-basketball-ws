@@ -4,12 +4,11 @@ import Joi from "@hapi/joi";
 
 const logger = getLogger();
 
-const validationMiddleware = (schema: Joi.ObjectSchema, property: "body" | "query") => (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void => {
-  const result = schema.validate(req.body);
+const validationMiddleware = (
+  schema: Joi.ObjectSchema,
+  property: "body" | "query"
+) => (req: Request, res: Response, next: NextFunction): void => {
+  const result = schema.validate(req[property]);
   const { error } = result;
   const valid = error == null;
   if (!valid) {
