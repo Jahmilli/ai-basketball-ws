@@ -1,3 +1,4 @@
+/* eslint @typescript-eslint/ban-ts-comment: 0 */
 const mockConfigGet = jest.fn();
 jest.mock("config", () => {
   return {
@@ -5,21 +6,21 @@ jest.mock("config", () => {
   };
 });
 
-import Server from "../../src/Server";
-import {
-  S3TestHelper,
-  waitAsync,
-  DatabaseTestHelper,
-  getTestRequest,
-  getExpectedDbResult,
-} from "../utils/TestHelper";
-import { getLogger } from "../../src/utils/Logging";
+import config from "config";
 import fastify from "fastify";
 import * as path from "path";
-import S3Helper from "../../src/modules/S3Helper";
-import config from "config";
 import request from "supertest";
-import { IS3Config, IPoseServiceConfig } from "../../src/interfaces/IConfig";
+import { IPoseServiceConfig, IS3Config } from "../../src/interfaces/IConfig";
+import S3Helper from "../../src/modules/S3Helper";
+import Server from "../../src/Server";
+import { getLogger } from "../../src/utils/Logging";
+import {
+  DatabaseTestHelper,
+  getExpectedDbResult,
+  getTestRequest,
+  S3TestHelper,
+  waitAsync,
+} from "../utils/TestHelper";
 
 const logger = getLogger();
 const httpsServer = fastify();

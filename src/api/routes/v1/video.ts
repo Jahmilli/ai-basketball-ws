@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import util from "util";
 import { formatError, getLogger } from "../../../utils/Logging";
 import Busboy from "busboy";
@@ -9,8 +9,9 @@ import { Video } from "../../../entity/Video";
 import Database from "../../../modules/Database";
 import PoseService from "../../../services/PoseService";
 import validationMiddleware from "../../middlewares/validation";
-import uploadVideoSchema from "../../schemas/uploadVideoSchema";
+import { uploadVideoSchema } from "../../schemas/uploadVideoSchema";
 import { IS3Config } from "IConfig";
+import { internalServerError } from "../../../utils/Constants";
 
 const route = Router();
 const logger = getLogger();
@@ -23,36 +24,26 @@ export default (app: Router): void => {
   const upload = new Upload();
   app.use("/v1/video", route);
 
-  route.get("/", async (req: Request, res: Response) => {
+  route.get("/:userId", async (req: Request, res: Response) => {
     logger.info(`Received GET request to /video ${util.inspect(req.body)}`);
-    if (!req.query.userId) {
-      logger.info(`Received request without query param`);
-      return res.sendStatus(400);
-    }
 
-    // @ts-ignore TODO: Maybe a path param makes more sense than a query param here...
-    const result = await db.getVideosForUser(req.query.userId);
-    console.log("result is ", result);
+    const result = await db.getVideosForUser(req.params.userId);
+    console.log("videos result is ", result);
     res.json(result);
   });
   // Responsible for saving request in database and returning id etc to client
   route.post(
     "/",
     validationMiddleware(uploadVideoSchema, "body"),
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response, next: NextFunction) => {
       logger.info(`Received request to /create ${util.inspect(req.body)}`);
 
       const video = new Video();
       video.userId = req.body.userId;
       video.name = req.body.name;
-      // TODO: Set default values from database...
       video.description = req.body.description;
-      video.isProcessed = false;
       video.angleOfShot = req.body.angleOfShot;
       video.typeOfShot = req.body.typeOfShot;
-      video.storageUri = "";
-      video.feedback = null;
-      video.createdTimestamp = new Date();
 
       try {
         const result = await db.writeVideoResult(video);
@@ -63,7 +54,7 @@ export default (app: Router): void => {
             video
           )} to database ${formatError(err)}`
         );
-        return res.sendStatus(500);
+        return next(err);
       }
     }
   );

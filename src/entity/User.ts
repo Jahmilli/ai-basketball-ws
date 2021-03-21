@@ -1,8 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn } from "typeorm";
 
 @Entity("users")
 export class User {
-  @Column("text")
+  @PrimaryColumn("text")
   id: string;
 
   @Column("text")
@@ -14,9 +14,12 @@ export class User {
   @Column("text", { name: "last_name" })
   lastName: string;
 
-  @Column("timestamp with time zone", { name: "date_of_birth" })
+  @Column("timestamptz", { name: "date_of_birth" })
   dateOfBirth: Date;
 
-  @Column("timestamp with time zone", { name: "created_timestamp" })
+  @Column("timestamptz", { name: "last_updated" })
+  lastUpdated: Date;
+
+  @Column("timestamptz", { name: "created_timestamp" })
   createdTimestamp: Date;
 }

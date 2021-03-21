@@ -30,6 +30,6 @@ export class Video {
   @Column("jsonb", { nullable: true })
   feedback: IFeedback | null;
 
-  @Column("timestamp with time zone", { name: "created_timestamp" })
+  @Column("timestamptz", { name: "created_timestamp" })
   createdTimestamp: Date;
 }
