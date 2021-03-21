@@ -6,5 +6,4 @@ export const uploadVideoSchema = Joi.object({
   description: Joi.string().required(),
   angleOfShot: Joi.string().required(),
   typeOfShot: Joi.string().required(),
-  // createdTimestamp: Joi.number().required(),
 });

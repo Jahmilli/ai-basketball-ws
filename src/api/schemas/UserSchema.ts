@@ -6,6 +6,4 @@ export const createUserSchema = Joi.object({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
   dateOfBirth: Joi.number().required(),
-  // lastUpdated: Joi.number().required(),
-  // createdTimestamp: Joi.number().required(),
 });

@@ -1,15 +1,15 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import util from "util";
-import { formatError, getLogger } from "../../../utils/Logging";
+import { createUserSchema } from "../../../api/schemas/UserSchema";
 import { User } from "../../../entity/User";
 import Database from "../../../modules/Database";
-import validationMiddleware from "../../middlewares/validation";
-import { createUserSchema } from "../../../api/schemas/UserSchema";
 import {
-  resourceCreated,
   internalServerError,
   notFoundError,
+  resourceCreated,
 } from "../../../utils/Constants";
+import { formatError, getLogger } from "../../../utils/Logging";
+import validationMiddleware from "../../middlewares/validation";
 
 const route = Router();
 const logger = getLogger();

@@ -8,7 +8,7 @@ export interface IVideo {
   typeOfShot: TypeOfShot;
   storageUri: string;
   feedback: IFeedback | null;
-  createdTimestamp: Date;
+  createdTimestamp: number;
 }
 
 export interface IFeedback {

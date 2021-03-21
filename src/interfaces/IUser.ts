@@ -3,7 +3,7 @@ export interface IUser {
   email: string;
   firstName: string;
   lastName: string;
-  dateOfBirth: Date;
-  lastUpdated: Date;
-  createdTimestamp: Date;
+  dateOfBirth: number;
+  lastUpdated: number;
+  createdTimestamp: number;
 }
