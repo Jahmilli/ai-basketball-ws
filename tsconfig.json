@@ -10,9 +10,10 @@
     "outDir": "dist",
     "baseUrl": ".",
     "traceResolution": false,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
     "paths": {
       "*": ["node_modules/*", "src/interfaces/*"]
     }

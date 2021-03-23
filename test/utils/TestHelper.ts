@@ -5,10 +5,10 @@ import { Video } from "../../src/entity/Video";
 import { getLogger } from "../../src/utils/Logging";
 
 const logger = getLogger();
-export const waitAsync = (timeout: any) => {
+export const waitAsync = (timeout: number) => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve();
+      resolve(null);
     }, timeout);
   });
 };
@@ -21,7 +21,7 @@ export const getTestRequest = () => {
     description: "This is a temporary description",
     angleOfShot: "side on",
     typeOfShot: "free throw",
-    uploadedTimestamp: new Date("2020-07-19T02:45:32.722Z"),
+    createdTimestamp: new Date("2020-07-19T02:45:32.722Z"),
   };
 };
 
@@ -35,7 +35,7 @@ export const getExpectedDbResult = () => {
     type_of_shot: "free throw",
     storage_uri: "",
     feedback: "",
-    uploaded_timestamp: "2020-07-19T02:45:32.722Z",
+    createdTimestamp: "2020-07-19T02:45:32.722Z",
     id: expect.any(String),
   };
 };

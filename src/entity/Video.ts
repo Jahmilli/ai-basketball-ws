@@ -4,32 +4,32 @@ import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 @Entity("videos")
 export class Video {
   @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  id: string;
+
+  @Column("text", { name: "user_id" })
+  userId: string; // References id from Users table
 
   @Column("text")
-  user_id!: string; // References id from Users table
+  name: string;
 
   @Column("text")
-  name!: string;
+  description: string;
 
-  @Column("text")
-  description!: string;
+  @Column("boolean", { name: "is_processed", default: false })
+  isProcessed: boolean;
 
-  @Column("boolean", { default: false })
-  is_processed!: boolean;
+  @Column("text", { name: "angle_of_shot" })
+  angleOfShot: AngleOfShot;
 
-  @Column("text")
-  angle_of_shot!: AngleOfShot;
+  @Column("text", { name: "type_of_shot" })
+  typeOfShot: TypeOfShot;
 
-  @Column("text")
-  type_of_shot!: TypeOfShot;
-
-  @Column("text")
-  storage_uri!: string;
+  @Column("text", { name: "storage_uri" })
+  storageUri: string;
 
   @Column("jsonb", { nullable: true })
-  feedback!: IFeedback | null;
+  feedback: IFeedback | null;
 
-  @Column("timestamptz")
-  uploaded_timestamp!: Date;
+  @Column("timestamptz", { name: "created_timestamp" })
+  createdTimestamp: Date;
 }

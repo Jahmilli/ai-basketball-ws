@@ -1,14 +1,14 @@
 export interface IVideo {
   id: string;
-  user_id: string;
+  userId: string;
   name: string;
   description: string;
-  is_processed: boolean;
-  angle_of_shot: AngleOfShot;
-  type_of_shot: TypeOfShot;
-  storage_uri: string;
+  isProcessed: boolean;
+  angleOfShot: AngleOfShot;
+  typeOfShot: TypeOfShot;
+  storageUri: string;
   feedback: IFeedback | null;
-  uploaded_timestamp: Date;
+  createdTimestamp: number;
 }
 
 export interface IFeedback {
