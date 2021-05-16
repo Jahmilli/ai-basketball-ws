@@ -1,10 +1,10 @@
-import { createConnection, getConnection } from "typeorm";
-import { Video } from "../entity/Video";
-import { User } from "../entity/User";
-import { getLogger } from "../utils/Logging";
-import * as util from "util";
-import { IDatabaseConfig } from "IConfig";
 import config from "config";
+import { IDatabaseConfig } from "IConfig";
+import { createConnection, getConnection } from "typeorm";
+import * as util from "util";
+import { User } from "../entity/User";
+import { Video } from "../entity/Video";
+import { getLogger } from "../utils/Logging";
 
 export default class Database {
   private logger = getLogger();

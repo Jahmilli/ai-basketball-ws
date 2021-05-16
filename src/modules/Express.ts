@@ -1,10 +1,9 @@
-import express, { Express, Request, Response, Router } from "express";
-import bodyParser from "body-parser";
-import video from "../api/routes/v1/video";
-import user from "../api/routes/v1/user";
 import cors from "cors";
-import { getLogger } from "../utils/Logging";
+import express, { Express, Request, Response, Router } from "express";
 import { errorHandler } from "../api/middlewares/errorHandler";
+import user from "../api/routes/v1/user";
+import video from "../api/routes/v1/video";
+import { getLogger } from "../utils/Logging";
 
 export const setupExpress = (): Express => {
   const logger = getLogger();
@@ -16,7 +15,7 @@ export const setupExpress = (): Express => {
   const app = express()
     .use(cors())
     .use(express.urlencoded({ extended: true }))
-    .use(bodyParser.json())
+    .use(express.json())
     .use(router)
     .use((req: Request, res: Response) => {
       logger.info(`Received request in 404 handler for path ${req.path}`);
