@@ -1,8 +1,8 @@
 import AWS from "aws-sdk";
-import stream from "stream";
 import { IS3Config } from "IConfig";
+import stream from "stream";
 import { promisify } from "util";
-import { getLogger, formatError } from "../utils/Logging";
+import { getLogger } from "../utils/Logging";
 
 export default class S3Helper {
   public readonly s3: AWS.S3;
@@ -11,18 +11,22 @@ export default class S3Helper {
   constructor(s3Config: IS3Config) {
     AWS.config.update(s3Config);
     this.s3 = new AWS.S3();
+    this.logger.info(`S3 Helper initialised...`);
 
-    (async () => {
-      try {
-        await this.createBucket(s3Config.videosBucket);
-        this.logger.info(`Created bucket ${s3Config.videosBucket}`);
-      } catch (err) {
-        this.logger.warn(
-          `An error occurred when creating bucket ${formatError(err)}`
-        );
-        // Assume that the bucket exists already...
-      }
-    })();
+    // Just to make life easier for dev...
+    // if (process.env.NODE_ENV === "dev") {
+    //   (async () => {
+    //     try {
+    //       await this.createBucket(s3Config.videosBucket);
+    //       this.logger.info(`Created bucket ${s3Config.videosBucket}`);
+    //     } catch (err) {
+    //       this.logger.warn(
+    //         `An error occurred when creating bucket ${formatError(err)}`
+    //       );
+    //       // Assume that the bucket exists already and continue...
+    //     }
+    //   })();
+    // }
   }
 
   /**

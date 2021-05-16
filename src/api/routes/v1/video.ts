@@ -1,17 +1,16 @@
-import { Router, Request, Response, NextFunction } from "express";
-import util from "util";
-import { formatError, getLogger } from "../../../utils/Logging";
 import Busboy from "busboy";
-import Upload from "../../../services/Upload";
-import S3Helper from "../../../modules/S3Helper";
 import config from "config";
+import { NextFunction, Request, Response, Router } from "express";
+import { IS3Config } from "IConfig";
+import util from "util";
 import { Video } from "../../../entity/Video";
 import Database from "../../../modules/Database";
+import S3Helper from "../../../modules/S3Helper";
 import PoseService from "../../../services/PoseService";
+import Upload from "../../../services/Upload";
+import { formatError, getLogger } from "../../../utils/Logging";
 import validationMiddleware from "../../middlewares/validation";
 import { uploadVideoSchema } from "../../schemas/uploadVideoSchema";
-import { IS3Config } from "IConfig";
-import { internalServerError } from "../../../utils/Constants";
 
 const route = Router();
 const logger = getLogger();
@@ -87,27 +86,27 @@ export default (app: Router): void => {
         await util.promisify(writeStream.end).bind(writeStream)();
         logger.debug("Closed relevant streams");
       });
-    });
 
-    busboy.on("finish", async () => {
-      logger.debug("Done parsing form!");
-      const uploadUri = await uploadUriPromise;
+      busboy.on("finish", async () => {
+        logger.debug("Done parsing form!");
+        const uploadUri = await uploadUriPromise;
 
-      try {
-        if (!fileId) {
-          throw new Error("Missing key");
+        try {
+          if (!fileId) {
+            throw new Error("Missing key");
+          }
+          await db.updateVideoResult(fileId, uploadUri);
+          await poseService.sendRequest(fileId, uploadUri);
+          // TODO: Determine what the response here should be
+          res.writeHead(201, { Connection: "close", Location: "/" });
+        } catch (err) {
+          logger.warn(`An error occured ${formatError(err)}`);
+          // TODO: Determine what the response here should be
+          res.writeHead(500, { Connection: "close", Location: "/" });
         }
-        await db.updateVideoResult(fileId, uploadUri);
-        await poseService.sendRequest(fileId, uploadUri);
-        // TODO: Determine what the response here should be
-        res.writeHead(201, { Connection: "close", Location: "/" });
-      } catch (err) {
-        logger.warn(`An error occured ${formatError(err)}`);
-        // TODO: Determine what the response here should be
-        res.writeHead(500, { Connection: "close", Location: "/" });
-      }
 
-      res.end();
+        res.end();
+      });
     });
   });
 };
