@@ -15,4 +15,9 @@ module.exports = {
     path: "/v1/video/receive", // Path that we request from the pose server
     timeout: 5000,
   },
+  database: {
+    type: "postgres",
+    host: "localhost",
+    port: 5432,
+  }
 };

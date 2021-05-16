@@ -19,6 +19,7 @@ import {
   getExpectedDbResult,
   getTestRequest,
   S3TestHelper,
+  setTestSecrets,
   waitAsync,
 } from "../utils/TestHelper";
 
@@ -93,6 +94,7 @@ describe("End-2-End test", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    setTestSecrets();
     poseServiceReceived = {};
     await dbTestHelper.deleteAllVideoRows();
 

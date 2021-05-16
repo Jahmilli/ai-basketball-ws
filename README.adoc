@@ -78,6 +78,18 @@ docker build -t ai-basketball-ws .
 npm start
 ```
 
+== Sync
+
+To update the application in S3, assuming you've got the right credentials, run the following:
+
+```
+npm ci
+mkdir ai-basketball-ws
+cp -r dist ai-basketball-ws/ && cp -r config ai-basketball-ws/ && cp -r node_modules ai-basketball-ws/
+zip -r ai-basketball-ws.zip ai-basketball-ws/
+aws s3 cp ./ai-basketball-ws.zip s3://ai-basketball-applications/ai-basketball-ws
+```
+
 == Conventions
 === Directory structure
  /

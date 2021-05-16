@@ -1,14 +1,15 @@
 import App from "./App";
 import Signals = NodeJS.Signals;
 import { formatError, getLogger } from "./utils/Logging";
+import { checkEnv } from "./utils/Helpers";
 
 export default class Server {
   private logger = getLogger();
   private app: App;
 
   constructor() {
+    checkEnv();
     this.app = new App();
-    // TODO: Add any environment variable checks here
   }
 
   stop = async (): Promise<void> => {

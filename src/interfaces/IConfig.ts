@@ -22,3 +22,10 @@ export interface IConfig {
   api: IApiConfig;
   poseService: IPoseServiceConfig;
 }
+
+export interface IDatabaseConfig {
+  type: "postgres";
+  host: string;
+  port: number;
+  schema: string;
+}

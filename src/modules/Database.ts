@@ -3,13 +3,23 @@ import { Video } from "../entity/Video";
 import { User } from "../entity/User";
 import { getLogger } from "../utils/Logging";
 import * as util from "util";
+import { IDatabaseConfig } from "IConfig";
+import config from "config";
 
 export default class Database {
   private logger = getLogger();
   constructor(readonly connectionName: string) {}
 
   async start(): Promise<void> {
-    await createConnection(this.connectionName);
+    const databaseConfig: IDatabaseConfig = config.get("database");
+    await createConnection({
+      name: this.connectionName,
+      entities: [User, Video],
+      ...databaseConfig,
+      username: process.env.POSTGRESQL_USER,
+      password: process.env.POSTGRESQL_PASSWORD,
+      database: process.env.POSTGRESQL_DATABASE,
+    });
     this.logger.info(
       `Started connection with connection name ${this.connectionName}`
     );

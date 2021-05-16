@@ -110,3 +110,9 @@ export class DatabaseTestHelper {
       .execute();
   };
 }
+
+export const setTestSecrets = (): void => {
+  process.env.POSTGRESQL_USER = "postgres";
+  process.env.POSTGRESQL_PASSWORD = "password";
+  process.env.POSTGRESQL_DATABASE = "mydb";
+}

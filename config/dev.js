@@ -7,4 +7,9 @@ module.exports = {
     sslEnabled: false,
     s3ForcePathStyle: true,
   },
+  database: {
+    type: "postgres",
+    host: "localhost",
+    port: 5432,
+  }
 };

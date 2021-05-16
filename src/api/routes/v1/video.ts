@@ -1,17 +1,16 @@
-import { Router, Request, Response, NextFunction } from "express";
-import util from "util";
-import { formatError, getLogger } from "../../../utils/Logging";
 import Busboy from "busboy";
-import Upload from "../../../services/Upload";
-import S3Helper from "../../../modules/S3Helper";
 import config from "config";
+import { NextFunction, Request, Response, Router } from "express";
+import { IS3Config } from "IConfig";
+import util from "util";
 import { Video } from "../../../entity/Video";
 import Database from "../../../modules/Database";
+import S3Helper from "../../../modules/S3Helper";
 import PoseService from "../../../services/PoseService";
+import Upload from "../../../services/Upload";
+import { formatError, getLogger } from "../../../utils/Logging";
 import validationMiddleware from "../../middlewares/validation";
 import { uploadVideoSchema } from "../../schemas/uploadVideoSchema";
-import { IS3Config } from "IConfig";
-import { internalServerError } from "../../../utils/Constants";
 
 const route = Router();
 const logger = getLogger();
