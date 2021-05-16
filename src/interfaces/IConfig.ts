@@ -1,7 +1,5 @@
 export interface IS3Config {
   videosBucket: string;
-  accessKeyId: string;
-  secretAccessKey: string;
   endpoint: string;
   sslEnabled: boolean;
   s3ForcePathStyle: boolean;

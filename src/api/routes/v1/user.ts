@@ -29,6 +29,9 @@ export default (app: Router): void => {
           // TODO: Move all of this into a service class, should not be done from here...
           const user = await db.findUser(userId);
           if (!user) {
+            logger.debug(
+              `Unable to find user for userId ${userId}, will response with 404`
+            );
             // TODO: Use error handler for this,
             return res.status(notFoundError.statusCode).json(notFoundError);
           }

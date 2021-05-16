@@ -86,27 +86,27 @@ export default (app: Router): void => {
         await util.promisify(writeStream.end).bind(writeStream)();
         logger.debug("Closed relevant streams");
       });
-    });
 
-    busboy.on("finish", async () => {
-      logger.debug("Done parsing form!");
-      const uploadUri = await uploadUriPromise;
+      busboy.on("finish", async () => {
+        logger.debug("Done parsing form!");
+        const uploadUri = await uploadUriPromise;
 
-      try {
-        if (!fileId) {
-          throw new Error("Missing key");
+        try {
+          if (!fileId) {
+            throw new Error("Missing key");
+          }
+          await db.updateVideoResult(fileId, uploadUri);
+          await poseService.sendRequest(fileId, uploadUri);
+          // TODO: Determine what the response here should be
+          res.writeHead(201, { Connection: "close", Location: "/" });
+        } catch (err) {
+          logger.warn(`An error occured ${formatError(err)}`);
+          // TODO: Determine what the response here should be
+          res.writeHead(500, { Connection: "close", Location: "/" });
         }
-        await db.updateVideoResult(fileId, uploadUri);
-        await poseService.sendRequest(fileId, uploadUri);
-        // TODO: Determine what the response here should be
-        res.writeHead(201, { Connection: "close", Location: "/" });
-      } catch (err) {
-        logger.warn(`An error occured ${formatError(err)}`);
-        // TODO: Determine what the response here should be
-        res.writeHead(500, { Connection: "close", Location: "/" });
-      }
 
-      res.end();
+        res.end();
+      });
     });
   });
 };
