@@ -44,6 +44,16 @@ Note: That we also need the database changes deployed from ai-basketball-databas
 docker run --rm -itd --name aibasketball -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_DB=mydb -p 5432:5432 postgres
 ```
 
+### Environment Variables
+
+The following environment variables are required to run the application:
+
+- `POSTGRESQL_USER`
+- `POSTGRESQL_PASSWORD`
+- `POSTGRESQL_DATABASE`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+
 === Local development
 
 Install required packages: `npm install`
@@ -77,7 +87,19 @@ docker build -t ai-basketball-ws .
 == Running
 
 ```
-npm start
+LOG_LEVEL=debug POSTGRESQL_USER=postgres POSTGRESQL_PASSWORD=password POSTGRESQL_DATABASE=mydb npm run start
+```
+
+== Sync
+
+To update the application in S3, assuming you've got the right credentials, run the following:
+
+```
+npm ci && npm run build
+mkdir ai-basketball-ws
+cp -r dist ai-basketball-ws/ && cp -r config ai-basketball-ws/ && cp -r node_modules ai-basketball-ws/
+zip -r ai-basketball-ws.zip ai-basketball-ws/
+aws s3 cp ./ai-basketball-ws.zip s3://ai-basketball-applications/
 ```
 
 == Conventions

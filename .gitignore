@@ -74,3 +74,6 @@ build/*
 
 # Allure test results
 allure-results
+
+ai-basketball-ws
+ai-basketball-ws.zip
